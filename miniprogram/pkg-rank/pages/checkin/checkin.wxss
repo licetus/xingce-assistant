@@ -1,0 +1,61 @@
+.summary {
+  display: flex;
+}
+
+.summary-item {
+  flex: 1;
+  text-align: center;
+}
+
+.summary-num {
+  font-size: 44rpx;
+  font-weight: 500;
+  color: var(--brand);
+}
+
+.weekday-row {
+  display: flex;
+  margin-bottom: 12rpx;
+}
+
+.weekday {
+  flex: 1;
+  text-align: center;
+  font-size: 22rpx;
+  color: var(--text-3);
+}
+
+.day-grid {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.day {
+  width: 14.28%;
+  height: 88rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12rpx;
+  margin-bottom: 8rpx;
+}
+
+.day.is-blank {
+  visibility: hidden;
+}
+
+.day.is-checked {
+  background: var(--brand-light);
+  color: var(--brand);
+}
+
+.day-text {
+  font-size: 30rpx;
+}
+
+.actions {
+  padding: 24rpx 32rpx;
+  display: flex;
+  flex-direction: column;
+  gap: 20rpx;
+}

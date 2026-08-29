@@ -1,0 +1,26 @@
+.poster {
+  background: #fff;
+  min-height: 100vh;
+  padding-top: 60rpx;
+}
+
+.poster-wrap {
+  display: flex;
+  justify-content: center;
+}
+
+.poster-canvas {
+  width: 600rpx;
+  height: 920rpx;
+  border-radius: 16rpx;
+  box-shadow: 0 8rpx 32rpx rgba(0, 0, 0, 0.08);
+}
+
+.tip {
+  text-align: center;
+  padding: 32rpx;
+}
+
+.actions {
+  padding: 32rpx;
+}

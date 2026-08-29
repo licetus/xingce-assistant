@@ -1,0 +1,179 @@
+.qc {
+  padding: 32rpx;
+}
+
+.qc-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24rpx;
+}
+
+.qc-index {
+  font-size: 32rpx;
+  font-weight: 500;
+  color: var(--brand);
+}
+
+.qc-total {
+  font-size: 24rpx;
+  color: var(--text-3);
+  font-weight: 400;
+}
+
+.qc-tags {
+  display: flex;
+  align-items: center;
+}
+
+.qc-diff {
+  font-size: 22rpx;
+  color: var(--text-3);
+  margin-left: 12rpx;
+}
+
+.qc-stem {
+  font-size: 30rpx;
+  line-height: 1.7;
+  color: var(--text-1);
+  margin-bottom: 32rpx;
+}
+
+.qc-multi-tip {
+  display: inline-block;
+  background: var(--warning);
+  color: #fff;
+  font-size: 20rpx;
+  padding: 2rpx 10rpx;
+  border-radius: 6rpx;
+  margin-right: 10rpx;
+  vertical-align: middle;
+}
+
+.qc-img {
+  width: 100%;
+  border-radius: 12rpx;
+  margin-bottom: 24rpx;
+}
+
+.qc-options {
+  margin-bottom: 24rpx;
+}
+
+.qc-option {
+  display: flex;
+  align-items: flex-start;
+  padding: 24rpx;
+  border: 2rpx solid var(--line);
+  border-radius: 12rpx;
+  margin-bottom: 20rpx;
+  transition: background 0.15s;
+}
+
+.qc-key {
+  width: 48rpx;
+  height: 48rpx;
+  line-height: 48rpx;
+  text-align: center;
+  border-radius: 50%;
+  background: #F0F1F3;
+  color: var(--text-2);
+  font-size: 26rpx;
+  flex-shrink: 0;
+  margin-right: 20rpx;
+}
+
+.qc-text {
+  flex: 1;
+  font-size: 28rpx;
+  line-height: 1.6;
+  color: var(--text-1);
+}
+
+.qc-option.is-chosen {
+  border-color: var(--brand);
+  background: var(--brand-light);
+}
+
+.qc-option.is-chosen .qc-key {
+  background: var(--brand);
+  color: #fff;
+}
+
+.qc-option.is-right {
+  border-color: var(--success);
+  background: var(--success-light);
+}
+
+.qc-option.is-right .qc-key {
+  background: var(--success);
+  color: #fff;
+}
+
+.qc-option.is-wrong {
+  border-color: var(--danger);
+  background: var(--danger-light);
+}
+
+.qc-option.is-wrong .qc-key {
+  background: var(--danger);
+  color: #fff;
+}
+
+.qc-confirm {
+  margin-top: 8rpx;
+}
+
+.qc-analysis {
+  margin-top: 32rpx;
+  padding: 24rpx;
+  background: #FAFBFC;
+  border-radius: 12rpx;
+}
+
+.qc-verdict {
+  font-size: 30rpx;
+  font-weight: 500;
+  margin-bottom: 16rpx;
+}
+
+.qc-verdict.ok {
+  color: var(--success);
+}
+
+.qc-verdict.no {
+  color: var(--danger);
+}
+
+.qc-answer {
+  font-size: 24rpx;
+  color: var(--text-2);
+  font-weight: 400;
+  margin-left: 16rpx;
+}
+
+.qc-ana-toggle {
+  font-size: 26rpx;
+  color: var(--brand);
+  padding: 12rpx 0;
+}
+
+.qc-ana-body {
+  font-size: 27rpx;
+  line-height: 1.75;
+  color: var(--text-2);
+  padding: 16rpx 0;
+  border-top: 2rpx solid var(--line);
+  margin-top: 8rpx;
+}
+
+.qc-ana-foot {
+  text-align: right;
+  padding-top: 12rpx;
+  border-top: 2rpx solid var(--line);
+}
+
+.qc-fav {
+  font-size: 24rpx;
+  color: var(--text-3);
+}

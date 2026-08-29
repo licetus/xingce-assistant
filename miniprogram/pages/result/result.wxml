@@ -1,0 +1,25 @@
+<view class="page result">
+  <view class="score-card">
+    <view class="score-num">{{accuracy}}<text class="score-unit">%</text></view>
+    <view class="score-label">正确率</view>
+    <view class="score-detail">{{correct}} / {{total}} 题答对</view>
+    <view class="score-beat">{{beatText}}</view>
+  </view>
+
+  <view class="card" wx:if="{{scene === 'checkin' && streak > 0}}">
+    <view class="between">
+      <text>连续打卡</text>
+      <text class="streak">{{streak}} 天</text>
+    </view>
+  </view>
+
+  <view class="actions">
+    <view class="btn btn-ghost action-btn" bindtap="onAgain">
+      {{scene === 'checkin' ? '返回' : '再来一组'}}
+    </view>
+    <view class="btn btn-ghost action-btn" bindtap="onGoWrong">看错题</view>
+    <view class="btn action-btn" bindtap="onPoster">生成战报</view>
+  </view>
+
+  <view class="back-home" bindtap="onBackHome">回到首页</view>
+</view>

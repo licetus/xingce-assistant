@@ -1,0 +1,25 @@
+<view class="page">
+  <view class="tabs">
+    <view class="tab {{type === 'week' ? 'is-active' : ''}}" data-type="week" bindtap="onSwitchType">周榜</view>
+    <view class="tab {{type === 'total' ? 'is-active' : ''}}" data-type="total" bindtap="onSwitchType">总榜</view>
+  </view>
+
+  <view wx:if="{{loading}}" class="empty"><text class="muted">加载中…</text></view>
+
+  <block wx:else>
+    <view class="card me-card" wx:if="{{me}}">
+      <text class="me-rank">{{me.rank ? '第 ' + me.rank + ' 名' : '未上榜'}}</text>
+      <text class="muted">答对 {{me.totalCorrect}} 题 · 打卡 {{me.days}} 天</text>
+    </view>
+
+    <view class="card rank-list">
+      <view class="rank-item" wx:for="{{list}}" wx:key="_openid">
+        <text class="rank-no {{index < 3 ? 'is-top' : ''}}">{{index + 1}}</text>
+        <image class="rank-avatar" src="{{item.avatarUrl || '/assets/default-avatar.png'}}" mode="aspectFill" />
+        <text class="rank-name">{{item.nickName}}</text>
+        <text class="rank-val">{{item.totalCorrect}} 题</text>
+      </view>
+      <view wx:if="{{!list.length}}" class="empty"><text class="muted">暂无排名数据</text></view>
+    </view>
+  </block>
+</view>

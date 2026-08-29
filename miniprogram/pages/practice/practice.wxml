@@ -1,0 +1,52 @@
+<view class="page practice">
+  <view wx:if="{{loading}}" class="loading">
+    <text class="muted">正在出题…</text>
+  </view>
+
+  <block wx:else>
+    <view class="progress-bar">
+      <view class="progress-inner" style="width: {{(current + 1) / total * 100}}%"></view>
+    </view>
+
+    <swiper
+      class="swiper"
+      current="{{current}}"
+      bindchange="onSwiperChange"
+      duration="200"
+    >
+      <swiper-item wx:for="{{list}}" wx:key="qid">
+        <scroll-view scroll-y class="swiper-scroll">
+          <question-card
+            q="{{item}}"
+            index="{{index}}"
+            total="{{total}}"
+            locked="{{!!item.result}}"
+            result="{{item.result}}"
+            bind:select="onSelect"
+            bind:fav="onFav"
+          />
+        </scroll-view>
+      </swiper-item>
+    </swiper>
+
+    <view class="footbar safe-bottom">
+      <view class="footbar-btns">
+        <view wx:if="{{mode === 'instant'}}" class="footbar-row">
+          <view class="btn btn-ghost foot-btn" bindtap="onPrev" wx:if="{{current > 0}}">上一题</view>
+          <view
+            class="btn foot-btn {{current < total - 1 ? '' : 'btn-ghost'}}"
+            bindtap="{{current < total - 1 ? 'onNext' : 'onSubmit'}}"
+          >
+            {{current < total - 1 ? '下一题' : '完成练习'}}
+          </view>
+        </view>
+
+        <view wx:else class="footbar-row">
+          <view class="btn foot-btn {{submitting ? 'btn-disabled' : ''}}" bindtap="onSubmit">
+            {{submitting ? '提交中…' : '交卷'}}
+          </view>
+        </view>
+      </view>
+    </view>
+  </block>
+</view>

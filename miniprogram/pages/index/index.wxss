@@ -1,0 +1,100 @@
+.hero {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 40rpx 32rpx 24rpx;
+}
+
+.hero-title {
+  font-size: 44rpx;
+  font-weight: 500;
+  color: var(--text-1);
+}
+
+.hero-sub {
+  font-size: 26rpx;
+  color: var(--text-2);
+  margin-top: 8rpx;
+}
+
+.hero-streak {
+  text-align: right;
+}
+
+.streak-num {
+  font-size: 48rpx;
+  font-weight: 500;
+  color: var(--brand);
+}
+
+.streak-unit {
+  font-size: 22rpx;
+  color: var(--text-3);
+  display: block;
+}
+
+.checkin-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.checkin-title {
+  font-size: 32rpx;
+  font-weight: 500;
+}
+
+.checkin-btn {
+  width: 180rpx;
+  height: 72rpx;
+  line-height: 72rpx;
+  font-size: 28rpx;
+  border-radius: 36rpx;
+}
+
+.section-title {
+  font-size: 30rpx;
+  font-weight: 500;
+  padding: 8rpx 32rpx 0;
+}
+
+.module-grid {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.module-item {
+  width: 33.33%;
+  padding: 24rpx 0;
+  text-align: center;
+}
+
+.module-name {
+  font-size: 28rpx;
+  color: var(--text-1);
+}
+
+.module-meta {
+  font-size: 22rpx;
+  color: var(--text-3);
+  margin-top: 6rpx;
+}
+
+.quick-row {
+  display: flex;
+  padding: 0 16rpx;
+}
+
+.quick-item {
+  flex: 1;
+  margin: 8rpx;
+  text-align: center;
+  padding: 32rpx 16rpx;
+}
+
+.quick-num {
+  font-size: 40rpx;
+  font-weight: 500;
+  color: var(--brand);
+  margin-bottom: 4rpx;
+}

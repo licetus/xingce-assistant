@@ -1,0 +1,272 @@
+[
+  {
+    "qid": 10001,
+    "module": "言语理解",
+    "subtype": "主旨概括",
+    "type": "single",
+    "stem": "数字化技术正在重塑传统制造业的生产方式，但其核心仍在于通过数据驱动实现对资源的高效配置。这段文字意在说明：",
+    "options": [
+      {
+        "key": "A",
+        "text": "数字化技术改变了制造业的生产方式"
+      },
+      {
+        "key": "B",
+        "text": "数据驱动是制造业转型的核心"
+      },
+      {
+        "key": "C",
+        "text": "传统制造业面临转型压力"
+      },
+      {
+        "key": "D",
+        "text": "资源配置效率有待提升"
+      }
+    ],
+    "answer": [
+      "B"
+    ],
+    "analysis": "文段为转折结构，转折后核心仍在于通过数据驱动实现对资源的高效配置是重点，对应B项。A项是转折前内容非重点，C、D项文段未直接体现。",
+    "difficulty": 3,
+    "tags": [
+      "转折结构",
+      "主旨概括"
+    ],
+    "materialId": null,
+    "images": [],
+    "source": "self",
+    "status": 1,
+    "stat": {
+      "done": 0,
+      "correct": 0
+    },
+    "createdAt": {
+      "$date": "2026-08-29T06:55:29.885Z"
+    }
+  },
+  {
+    "qid": 10002,
+    "module": "数量关系",
+    "subtype": "行程问题",
+    "type": "single",
+    "stem": "甲乙两人同时从A地出发前往B地，甲的速度为60千米/小时，乙的速度为40千米/小时。甲到达B地后立即返回，在距B地30千米处与乙相遇。问AB两地距离为多少千米？",
+    "options": [
+      {
+        "key": "A",
+        "text": "120"
+      },
+      {
+        "key": "B",
+        "text": "150"
+      },
+      {
+        "key": "C",
+        "text": "180"
+      },
+      {
+        "key": "D",
+        "text": "210"
+      }
+    ],
+    "answer": [
+      "B"
+    ],
+    "analysis": "设AB距离为S。甲走的总路程为S+30，乙走的总路程为S-30。两人用时相同：(S+30)/60=(S-30)/40，解得40S+1200=60S-1800，即2S=300，S=150。故选B。",
+    "difficulty": 4,
+    "tags": [
+      "相遇问题",
+      "方程法"
+    ],
+    "materialId": null,
+    "images": [],
+    "source": "self",
+    "status": 1,
+    "stat": {
+      "done": 0,
+      "correct": 0
+    },
+    "createdAt": {
+      "$date": "2026-08-29T06:55:29.886Z"
+    }
+  },
+  {
+    "qid": 10003,
+    "module": "判断推理",
+    "subtype": "图形推理",
+    "type": "single",
+    "stem": "请从所给的四个选项中，选择最合适的一个填入问号处，使之呈现一定的规律性。题干图形依次为：一个圆、两个圆、三个圆、四个圆。",
+    "options": [
+      {
+        "key": "A",
+        "text": "五个圆"
+      },
+      {
+        "key": "B",
+        "text": "四个圆"
+      },
+      {
+        "key": "C",
+        "text": "六个圆"
+      },
+      {
+        "key": "D",
+        "text": "三个圆"
+      }
+    ],
+    "answer": [
+      "A"
+    ],
+    "analysis": "题干图形中圆的数量依次为1、2、3、4，呈等差数列递增，故问号处应为5个圆。选A。",
+    "difficulty": 2,
+    "tags": [
+      "数量类",
+      "等差数列"
+    ],
+    "materialId": null,
+    "images": [],
+    "source": "self",
+    "status": 1,
+    "stat": {
+      "done": 0,
+      "correct": 0
+    },
+    "createdAt": {
+      "$date": "2026-08-29T06:55:29.886Z"
+    }
+  },
+  {
+    "qid": 10004,
+    "module": "资料分析",
+    "subtype": "增长率计算",
+    "type": "single",
+    "stem": "某市2024年第一季度GDP为1200亿元，2025年第一季度为1380亿元。该市2025年第一季度GDP同比增长率约为：",
+    "options": [
+      {
+        "key": "A",
+        "text": "12%"
+      },
+      {
+        "key": "B",
+        "text": "15%"
+      },
+      {
+        "key": "C",
+        "text": "18%"
+      },
+      {
+        "key": "D",
+        "text": "20%"
+      }
+    ],
+    "answer": [
+      "B"
+    ],
+    "analysis": "增长率=(现期量-基期量)/基期量=(1380-1200)/1200=180/1200=15%。故选B。",
+    "difficulty": 2,
+    "tags": [
+      "增长率",
+      "基期量"
+    ],
+    "materialId": null,
+    "images": [],
+    "source": "self",
+    "status": 1,
+    "stat": {
+      "done": 0,
+      "correct": 0
+    },
+    "createdAt": {
+      "$date": "2026-08-29T06:55:29.886Z"
+    }
+  },
+  {
+    "qid": 10005,
+    "module": "常识判断",
+    "subtype": "法律常识",
+    "type": "single",
+    "stem": "根据我国民法典规定，自然人的民事权利能力始于：",
+    "options": [
+      {
+        "key": "A",
+        "text": "出生"
+      },
+      {
+        "key": "B",
+        "text": "年满8周岁"
+      },
+      {
+        "key": "C",
+        "text": "年满18周岁"
+      },
+      {
+        "key": "D",
+        "text": "具备辨认能力时"
+      }
+    ],
+    "answer": [
+      "A"
+    ],
+    "analysis": "民法典第十三条规定，自然人从出生时起到死亡时止，具有民事权利能力，依法享有民事权利，承担民事义务。故选A。",
+    "difficulty": 1,
+    "tags": [
+      "民法典",
+      "民事权利能力"
+    ],
+    "materialId": null,
+    "images": [],
+    "source": "self",
+    "status": 1,
+    "stat": {
+      "done": 0,
+      "correct": 0
+    },
+    "createdAt": {
+      "$date": "2026-08-29T06:55:29.886Z"
+    }
+  },
+  {
+    "qid": 10006,
+    "module": "言语理解",
+    "subtype": "逻辑填空",
+    "type": "single",
+    "stem": "在推进乡村振兴的过程中，既要_______各村的资源禀赋，也要_______传统农耕文化的价值，避免千村一面。",
+    "options": [
+      {
+        "key": "A",
+        "text": "考量 忽视"
+      },
+      {
+        "key": "B",
+        "text": "尊重 挖掘"
+      },
+      {
+        "key": "C",
+        "text": "强调 抹杀"
+      },
+      {
+        "key": "D",
+        "text": "兼顾 抛弃"
+      }
+    ],
+    "answer": [
+      "B"
+    ],
+    "analysis": "第一空搭配资源禀赋，第二空搭配传统农耕文化的价值，且根据避免千村一面可知应重视差异与传统，故选尊重\"挖掘。B项最恰当。",
+    "difficulty": 3,
+    "tags": [
+      "实词辨析",
+      "语境分析"
+    ],
+    "materialId": null,
+    "images": [],
+    "source": "self",
+    "status": 1,
+    "stat": {
+      "done": 0,
+      "correct": 0
+    },
+    "createdAt": {
+      "$date": "2026-08-29T06:55:29.886Z"
+    }
+  }
+]

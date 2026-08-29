@@ -1,0 +1,60 @@
+<view class="qc">
+  <view class="qc-head">
+    <text class="qc-index">{{index + 1}}<text class="qc-total">/{{total}}</text></text>
+    <view class="qc-tags">
+      <text class="tag" wx:if="{{q.subtype}}">{{q.subtype}}</text>
+      <text class="qc-diff">难度 {{q.difficulty}}</text>
+    </view>
+  </view>
+
+  <view class="qc-stem">
+    <text wx:if="{{q.type === 'multi'}}" class="qc-multi-tip">多选</text>
+    <text>{{q.stem}}</text>
+  </view>
+
+  <image
+    wx:for="{{q.images}}"
+    wx:key="*this"
+    class="qc-img"
+    src="{{item}}"
+    mode="widthFix"
+    lazy-load="{{true}}"
+    wx:if="{{q.images.length}}"
+  />
+
+  <view class="qc-options">
+    <view
+      wx:for="{{q.options}}"
+      wx:key="key"
+      class="qc-option {{chosen.indexOf(item.key) >= 0 ? 'is-chosen' : ''}} {{result && result.answer.indexOf(item.key) >= 0 ? 'is-right' : ''}} {{result && chosen.indexOf(item.key) >= 0 && result.answer.indexOf(item.key) < 0 ? 'is-wrong' : ''}}"
+      data-key="{{item.key}}"
+      bindtap="onTapOption"
+    >
+      <text class="qc-key">{{item.key}}</text>
+      <text class="qc-text">{{item.text}}</text>
+    </view>
+  </view>
+
+  <view wx:if="{{q.type === 'multi' && !result}}" class="qc-confirm btn {{chosen.length ? '' : 'btn-disabled'}}" bindtap="onConfirmMulti">
+    确定
+  </view>
+
+  <view wx:if="{{result}}" class="qc-analysis">
+    <view class="qc-verdict {{result.correct ? 'ok' : 'no'}}">
+      {{result.correct ? '回答正确' : '回答错误'}}
+      <text class="qc-answer">正确答案 {{result.answer.join('')}}</text>
+    </view>
+
+    <view class="qc-ana-toggle" bindtap="toggleAnalysis">
+      {{showAnalysis ? '收起解析' : '查看解析'}}
+    </view>
+
+    <view wx:if="{{showAnalysis}}" class="qc-ana-body">
+      <text>{{result.analysis}}</text>
+    </view>
+
+    <view class="qc-ana-foot">
+      <text bindtap="onToggleFav" class="qc-fav">收藏本题</text>
+    </view>
+  </view>
+</view>

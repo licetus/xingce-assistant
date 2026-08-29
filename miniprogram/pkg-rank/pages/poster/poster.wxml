@@ -1,0 +1,12 @@
+<view class="page poster">
+  <view class="poster-wrap">
+    <canvas type="2d" id="poster" class="poster-canvas"></canvas>
+  </view>
+
+  <view wx:if="{{drawing}}" class="tip muted">正在生成海报…</view>
+
+  <view class="actions" wx:else>
+    <view class="btn" bindtap="onSave" wx:if="{{posterPath}}">保存到相册</view>
+    <view class="tip muted">保存后分享到朋友圈，好友扫码即可加入</view>
+  </view>
+</view>

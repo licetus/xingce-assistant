@@ -1,0 +1,99 @@
+.profile {
+  background: #fff;
+  padding: 60rpx 32rpx 48rpx;
+  text-align: center;
+}
+
+.avatar-btn {
+  width: 140rpx;
+  height: 140rpx;
+  padding: 0;
+  margin: 0 auto;
+  border-radius: 50%;
+  overflow: hidden;
+  background: transparent;
+  line-height: normal;
+}
+
+.avatar-btn::after {
+  border: none;
+}
+
+.avatar {
+  width: 140rpx;
+  height: 140rpx;
+  border-radius: 50%;
+}
+
+.nickname {
+  margin-top: 20rpx;
+  font-size: 32rpx;
+  text-align: center;
+  color: var(--text-1);
+}
+
+.stat-row {
+  display: flex;
+  padding: 32rpx 0;
+}
+
+.stat-item {
+  flex: 1;
+  text-align: center;
+}
+
+.stat-num {
+  font-size: 40rpx;
+  font-weight: 500;
+  color: var(--brand);
+}
+
+.section-title {
+  font-size: 30rpx;
+  font-weight: 500;
+  padding: 8rpx 32rpx 0;
+}
+
+.mod-row {
+  display: flex;
+  align-items: center;
+  padding: 16rpx 0;
+}
+
+.mod-name {
+  width: 140rpx;
+  font-size: 26rpx;
+  color: var(--text-2);
+}
+
+.mod-bar-wrap {
+  flex: 1;
+  height: 12rpx;
+  background: var(--line);
+  border-radius: 6rpx;
+  overflow: hidden;
+}
+
+.mod-bar {
+  height: 100%;
+  background: var(--brand);
+  border-radius: 6rpx;
+}
+
+.mod-val {
+  width: 80rpx;
+  text-align: right;
+  font-size: 24rpx;
+  color: var(--text-3);
+}
+
+.link-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.arrow {
+  color: var(--text-3);
+  font-size: 32rpx;
+}

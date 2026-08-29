@@ -1,0 +1,19 @@
+{
+  "triggers": [
+    {
+      "name": "dailyTask",
+      "type": "timer",
+      "config": "0 5 0 * * * *"
+    },
+    {
+      "name": "rebuildRank",
+      "type": "timer",
+      "config": "0 10 * * * * *"
+    },
+    {
+      "name": "archive",
+      "type": "timer",
+      "config": "0 30 3 * * * *"
+    }
+  ]
+}

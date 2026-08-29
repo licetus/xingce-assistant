@@ -1,0 +1,46 @@
+<view class="page">
+  <view class="profile">
+    <button class="avatar-btn" open-type="chooseAvatar" bindchooseavatar="onChooseAvatar">
+      <image class="avatar" src="{{avatarUrl || '/assets/default-avatar.png'}}" mode="aspectFill" />
+    </button>
+    <input
+      class="nickname"
+      type="nickname"
+      value="{{nickName}}"
+      placeholder="点击设置昵称"
+      bindblur="onNicknameBlur"
+      maxlength="16"
+    />
+  </view>
+
+  <view class="card stat-row">
+    <view class="stat-item">
+      <view class="stat-num">{{totalDone}}</view>
+      <view class="muted">累计刷题</view>
+    </view>
+    <view class="stat-item">
+      <view class="stat-num">{{accuracy}}%</view>
+      <view class="muted">总正确率</view>
+    </view>
+    <view class="stat-item">
+      <view class="stat-num">{{totalDays}}</view>
+      <view class="muted">打卡天数</view>
+    </view>
+  </view>
+
+  <view class="section-title">模块表现</view>
+  <view class="card">
+    <view class="mod-row" wx:for="{{modules}}" wx:key="name">
+      <text class="mod-name">{{item.name}}</text>
+      <view class="mod-bar-wrap">
+        <view class="mod-bar" style="width: {{item.accuracy}}%"></view>
+      </view>
+      <text class="mod-val">{{item.done ? item.accuracy + '%' : '—'}}</text>
+    </view>
+  </view>
+
+  <view class="card link-row" bindtap="onOpenPrivacy">
+    <text>用户隐私保护指引</text>
+    <text class="arrow">›</text>
+  </view>
+</view>

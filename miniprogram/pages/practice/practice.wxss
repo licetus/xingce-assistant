@@ -1,0 +1,51 @@
+.practice {
+  padding-bottom: 0;
+  min-height: 100vh;
+  background: #fff;
+}
+
+.loading {
+  padding: 120rpx 0;
+  text-align: center;
+}
+
+.progress-bar {
+  height: 6rpx;
+  background: var(--line);
+}
+
+.progress-inner {
+  height: 100%;
+  background: var(--brand);
+  transition: width 0.25s;
+}
+
+.swiper {
+  height: calc(100vh - 200rpx);
+}
+
+.swiper-scroll {
+  height: 100%;
+}
+
+.footbar {
+  position: sticky;
+  bottom: 0;
+  background: #fff;
+  border-top: 2rpx solid var(--line);
+  padding: 20rpx 32rpx;
+}
+
+.footbar-btns {
+  display: flex;
+}
+
+.footbar-row {
+  display: flex;
+  width: 100%;
+  gap: 20rpx;
+}
+
+.foot-btn {
+  flex: 1;
+}

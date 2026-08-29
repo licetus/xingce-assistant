@@ -1,0 +1,7 @@
+{
+  "usingComponents": {
+    "question-card": "/components/question-card/index"
+  },
+  "navigationBarTitleText": "专项练习",
+  "disableScroll": true
+}

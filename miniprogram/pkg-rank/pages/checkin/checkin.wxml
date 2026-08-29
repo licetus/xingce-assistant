@@ -1,0 +1,41 @@
+<view class="page">
+  <view class="card summary">
+    <view class="summary-item">
+      <view class="summary-num">{{streak}}</view>
+      <view class="muted">连续打卡</view>
+    </view>
+    <view class="summary-item">
+      <view class="summary-num">{{totalDays}}</view>
+      <view class="muted">累计天数</view>
+    </view>
+    <view class="summary-item">
+      <view class="summary-num">{{maxStreak}}</view>
+      <view class="muted">最长连续</view>
+    </view>
+  </view>
+
+  <view class="card">
+    <view class="weekday-row">
+      <text class="weekday" wx:for="{{weekdayRow}}" wx:key="*this">{{item}}</text>
+    </view>
+    <view class="day-grid">
+      <view
+        wx:for="{{days}}"
+        wx:key="date"
+        class="day {{item.blank ? 'is-blank' : ''}} {{item.checked ? 'is-checked' : ''}}"
+      >
+        <block wx:if="{{!item.blank}}">
+          <text class="day-num">{{index + 1 > 0 ? '' : ''}}</text>
+          <text class="day-text">{{item.checked ? '✓' : ''}}</text>
+        </block>
+      </view>
+    </view>
+  </view>
+
+  <view class="actions">
+    <view class="btn {{todayChecked ? 'btn-disabled' : ''}}" bindtap="onTapCheckin">
+      {{todayChecked ? '今日已打卡' : '开始今日打卡'}}
+    </view>
+    <view class="btn btn-ghost" bindtap="onTapRank">查看排行榜</view>
+  </view>
+</view>

@@ -1,0 +1,27 @@
+<view class="page">
+  <view class="tabs">
+    <view class="tab {{tab === 'wrong' ? 'is-active' : ''}}" data-tab="wrong" bindtap="onSwitchTab">错题本</view>
+    <view class="tab {{tab === 'fav' ? 'is-active' : ''}}" data-tab="fav" bindtap="onSwitchTab">收藏</view>
+  </view>
+
+  <view wx:if="{{tab === 'wrong'}}" class="redraw-bar">
+    <view class="btn" bindtap="onRedraw">重做错题（前 10 题）</view>
+  </view>
+
+  <view wx:if="{{empty}}" class="empty">
+    <text class="muted">{{tab === 'wrong' ? '暂时没有错题，保持住' : '还没有收藏的题目'}}</text>
+  </view>
+
+  <view class="card" wx:for="{{tab === 'wrong' ? list : favs}}" wx:key="qid" data-qid="{{item.qid}}" bindtap="onTapItem">
+    <view class="item-head">
+      <text class="tag">{{item.module}}</text>
+      <text class="muted" wx:if="{{item.wrongCount}}">错 {{item.wrongCount}} 次</text>
+    </view>
+    <view class="item-stem">{{item.stem}}</view>
+    <view class="item-foot" wx:if="{{tab === 'wrong'}}">
+      <text class="remove" data-qid="{{item.qid}}" catchtap="onRemove">已掌握</text>
+    </view>
+  </view>
+
+  <view wx:if="{{loading}}" class="empty"><text class="muted">加载中…</text></view>
+</view>
