@@ -1,5 +1,17 @@
 const { login, fetchConfig } = require('./services/user');
 
+/**
+ * 本地环境配置
+ * config.js 不入库（已 gitignore），未创建时回退到 config.example.js 的占位值。
+ * 这样公开仓库里不会出现真实云环境 ID，克隆下来也不会因为缺文件而崩溃。
+ */
+let envConfig;
+try {
+  envConfig = require('./config');
+} catch (e) {
+  envConfig = require('./config.example');
+}
+
 App({
   globalData: {
     openid: '',
@@ -24,8 +36,12 @@ App({
       return;
     }
 
+    if (envConfig.cloudEnv.indexOf('XXXX') >= 0) {
+      console.warn('[app] 云环境 ID 仍是占位值，请复制 miniprogram/config.example.js 为 config.js 并填入真实环境 ID');
+    }
+
     wx.cloud.init({
-      env: 'xingce-prod-0gXXXXXXXX',
+      env: envConfig.cloudEnv,
       traceUser: true
     });
 
