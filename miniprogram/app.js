@@ -51,6 +51,9 @@ App({
 
   /** 登录与拉配置并行发起，谁先回来谁先渲染，不串行等待 */
   async _bootstrap() {
+    // 微信原生更新检查不依赖登录态，尽早触发，新包能更早就绪
+    require('./utils/update').silentUpdate();
+
     try {
       const [config] = await Promise.all([
         fetchConfig().catch(() => ({})),
@@ -63,6 +66,11 @@ App({
       this._resolveReady(true);
       this._notifyReady();
       this._watchNetwork();
+
+      // 延后一帧再校验版本：强制更新弹窗若抢在首页渲染前弹出，会被页面覆盖导致白屏后弹窗
+      setTimeout(() => {
+        require('./utils/update').checkVersion(this.globalData.config);
+      }, 800);
     } catch (err) {
       console.error('[app] bootstrap failed', err);
       // 登录失败不能让页面白屏，放行后由各页面按未登录态降级展示

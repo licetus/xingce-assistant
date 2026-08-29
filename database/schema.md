@@ -194,10 +194,15 @@
 | `audit_mode` | boolean | **审核模式**。置 true 时隐藏排行榜、邀请、奖励入口。提审前打开，通过后关掉 |
 | `checkin_tmpl_id` | string | 打卡订阅消息模板 ID |
 | `share_text` | string | 分享文案，可随时换 |
-| `min_version` | string | 低于此版本强制更新 |
+| `min_version` | string | **强制更新线**。低于此版本弹不可取消的弹窗阻断使用，用于严重 Bug 或不兼容变更 |
+| `latest_version` | string | 柔性更新提示。低于此版本弹一次性提示，用户可忽略，每天最多打扰一次 |
+| `update_note` | string | 更新说明文案，配合上面两个字段展示 |
 | `home_banner` | object | 首页 banner 配置 |
 
 > `audit_mode` 是提审救命开关，V1 一定要做进去。没有它，每次提审都要改代码重新发版。
+>
+> 三个版本字段是**唯一能绕过审核的热更手段**。代码包改一个字都要重新提审（1~7 个工作日），
+> 而这几个字段改完即时生效。能用配置解决的问题，绝不要写死在代码里。
 
 ---
 
