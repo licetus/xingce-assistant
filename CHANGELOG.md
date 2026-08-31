@@ -16,7 +16,7 @@
 - 每日打卡：日历、连续天数、订阅消息提醒
 - 排行榜：周榜 / 总榜，云端缓存不实时聚合
 - 分享裂变：Canvas 2D 战报海报 + 带邀请参数的小程序码
-- 云函数 9 个：login / question / answer / checkin / wrongbook / favorite / rank / share / timer / track
+- 云函数 10 个：login / question / answer / checkin / wrongbook / favorite / rank / share / timer / track
 - 数据模型与 16 条索引定义
 - 题库导入脚本（清洗、校验、去重、切片）
 - 版本更新机制：静默更新 + 强制更新 + 柔性提示

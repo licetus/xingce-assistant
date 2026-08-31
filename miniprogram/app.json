@@ -42,19 +42,27 @@
     "list": [
       {
         "pagePath": "pages/index/index",
-        "text": "首页"
+        "text": "首页",
+        "iconPath": "assets/tabbar/home.png",
+        "selectedIconPath": "assets/tabbar/home_on.png"
       },
       {
         "pagePath": "pages/practice/practice",
-        "text": "练习"
+        "text": "练习",
+        "iconPath": "assets/tabbar/practice.png",
+        "selectedIconPath": "assets/tabbar/practice_on.png"
       },
       {
         "pagePath": "pages/wrong/wrong",
-        "text": "错题本"
+        "text": "错题本",
+        "iconPath": "assets/tabbar/wrong.png",
+        "selectedIconPath": "assets/tabbar/wrong_on.png"
       },
       {
         "pagePath": "pages/mine/mine",
-        "text": "我的"
+        "text": "我的",
+        "iconPath": "assets/tabbar/mine.png",
+        "selectedIconPath": "assets/tabbar/mine_on.png"
       }
     ]
   },

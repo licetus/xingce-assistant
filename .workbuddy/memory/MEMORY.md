@@ -6,7 +6,7 @@
 行测五大模块：常识判断、言语理解、数量关系、判断推理、资料分析。
 
 **本地目录**：`~/WorkBuddy/xingce-assistant`（2026-08-31 由「行测小助手」改名，与 GitHub 仓库名对齐）
-**GitHub**：`git@github.com:licetus/xingce-assistant.git`（remote 中的旧拼写 `assitant` 待同步）
+**GitHub**：`git@github.com:licetus/xingce-assistant.git`（本地 remote 已同步，但 SSH 公钥尚未注册到 GitHub，暂无法推送）
 
 ## 已确认的技术选型（不要重复询问）
 
@@ -75,5 +75,11 @@ hotfix 必须**同时合回 main 和 develop**。当前在 `develop`。
 
 - ICP 备案（关键路径，3~20 工作日）
 - 类目：先「工具 > 效率」，稳定后加「教育 > 在线教育」
-- tabBar 图标 81×81 PNG
+- 注册 GitHub SSH 公钥并推送 main/develop
 - 榜单「击败百分比」当前本地估算，V1.1 换云端真实分位
+
+## 已落地资产
+
+- `docs/上线提审清单.md`：备案、类目、隐私指引、后台配置、审核截图、时间线
+- `scripts/gen-tabbar-icons.py`：一键生成 8 张 81×81 tabBar 图标
+- `miniprogram/assets/tabbar/`：首页/练习/错题本/我的 × 未选中/选中
