@@ -4,13 +4,22 @@
 #
 # 用法：
 #   ./scripts/setup-github.sh https://github.com/<用户名>/<仓库名>.git
+#   ./scripts/setup-github.sh git@github.com:<用户名>/<仓库名>.git
 #
 # 前置条件：
 #   1. 已在 GitHub 网页创建**空**仓库（不要勾 README / .gitignore / LICENSE，
 #      否则会和本地仓库历史冲突，推送会被拒）
-#   2. 已配置好 GitHub 认证（HTTPS 用 Personal Access Token，或配好 SSH key）
+#   2. 已配置好 GitHub 认证
 #
-# 这个脚本只做三件事：加远端 → 推 main → 推 develop。
+# 关于认证（重要）：
+#   GitHub 从 2021-08 起**停用账号密码认证**，用 HTTPS 地址 push 会报：
+#     remote: Invalid username or token.
+#     Password authentication is not supported for Git operations.
+#
+#   因此本脚本会把传入的 HTTPS 地址自动转成 SSH（git@github.com:...）。
+#   如果本地还没有 SSH 密钥，脚本会提示生成方法并退出，不会让你白跑一趟。
+#
+# 这个脚本只做四件事：转 SSH 地址 → 检查认证 → 推 main → 推 develop。
 # 不会删东西、不会强推、不会改历史，可以放心执行。
 
 set -e
@@ -25,6 +34,56 @@ if [ -z "$REPO_URL" ]; then
   echo ""
   echo "先在 GitHub 网页创建空仓库，然后把地址传进来。"
   exit 1
+fi
+
+# ---------- HTTPS 自动转 SSH ----------
+# GitHub 已停用密码认证，HTTPS 地址会直接认证失败，统一转成 SSH
+if [[ "$REPO_URL" == https://github.com/* ]]; then
+  # 纯字符串处理，不用 sed：BSD sed 不支持 +? 这类惰性匹配，macOS 上会报 RE error
+  REPO_PATH="${REPO_URL#https://github.com/}"
+  REPO_PATH="${REPO_PATH%/}"
+  [[ "$REPO_PATH" == *.git ]] || REPO_PATH="$REPO_PATH.git"
+  SSH_URL="git@github.com:$REPO_PATH"
+
+  if [[ "$SSH_URL" == git@github.com:*.git ]]; then
+    echo "ℹ️  HTTPS 地址已自动转为 SSH（GitHub 不支持密码认证）"
+    echo "   $REPO_URL"
+    echo "   → $SSH_URL"
+    echo ""
+    REPO_URL="$SSH_URL"
+  fi
+fi
+
+# ---------- 认证前置检查 ----------
+# 用 SSH 地址却没配密钥，会在 push 时才报错，白等一轮；提前卡住更省时间
+if [[ "$REPO_URL" == git@* ]]; then
+  if ! ls ~/.ssh/*.pub >/dev/null 2>&1; then
+    echo "❌ 未找到 SSH 公钥，无法使用 SSH 推送"
+    echo ""
+    echo "生成密钥：ssh-keygen -t ed25519 -C \"你的邮箱\" -f ~/.ssh/id_ed25519"
+    echo "然后把公钥内容加到 GitHub：https://github.com/settings/keys"
+    echo "  查看公钥：cat ~/.ssh/id_ed25519.pub"
+    echo ""
+    echo "或者改用 HTTPS + Personal Access Token："
+    echo "  https://github.com/settings/tokens"
+    exit 1
+  fi
+
+  # 连通性检查：能拿到 GitHub 的响应就说明网络和密钥通道正常
+  SSH_TEST=$(ssh -T -o BatchMode=yes -o ConnectTimeout=10 git@github.com 2>&1 || true)
+  if echo "$SSH_TEST" | grep -q "Permission denied (publickey)"; then
+    echo "❌ SSH 密钥未注册到 GitHub（或没有权限访问该仓库）"
+    echo ""
+    echo "请确认已把下面这个公钥加到 GitHub → Settings → SSH and GPG keys："
+    echo ""
+    for k in ~/.ssh/*.pub; do
+      echo "  $k"
+      echo "  $(cat "$k")"
+    done
+    echo ""
+    echo "加完再执行一次本脚本。"
+    exit 1
+  fi
 fi
 
 echo "=========================================="
