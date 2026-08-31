@@ -5,6 +5,9 @@
 微信小程序，行测（行政职业能力测验）刷题工具。目标：快速上线 + 获取用户。
 行测五大模块：常识判断、言语理解、数量关系、判断推理、资料分析。
 
+**本地目录**：`~/WorkBuddy/xingce-assistant`（2026-08-31 由「行测小助手」改名，与 GitHub 仓库名对齐）
+**GitHub**：`git@github.com:licetus/xingce-assistant.git`（remote 中的旧拼写 `assitant` 待同步）
+
 ## 已确认的技术选型（不要重复询问）
 
 - **原生小程序 + 微信云开发**（用户明确否掉了 Taro/uni-app）
