@@ -27,9 +27,10 @@
 │   ├── components/       自定义组件
 │   ├── services/         业务接口层
 │   └── utils/            工具层（云调用、缓存、埋点、更新）
-├── cloudfunctions/       9 个云函数
+├── cloudfunctions/       10 个云函数
+├── cloudbaserc.json      云函数声明式部署配置
 ├── database/             集合结构与索引定义
-├── scripts/              题库导入、GitHub 接入
+├── scripts/              题库导入、云函数部署、GitHub 接入
 └── docs/                 架构设计与版本管理规范
 ```
 
@@ -48,7 +49,13 @@ cp miniprogram/config.example.js miniprogram/config.js
 #    见 database/schema.md 和 database/indexes.md
 #    注意：所有集合安全规则设为「仅管理端可读写」
 
-# 5. 部署云函数（每个云函数目录右键 → 上传并部署 → 云端安装依赖）
+# 5. 部署云函数
+#    方式一：命令行一键部署全部（推荐）
+npm i -g @cloudbase/cli && tcb login
+export CLOUD_ENV_ID=你的环境ID
+./scripts/deploy-functions.sh
+
+#    方式二：微信开发者工具，每个云函数目录右键 → 上传并部署 → 云端安装依赖
 
 # 6. 导入题库
 node scripts/import-questions.js <你的题库.csv>

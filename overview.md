@@ -10,7 +10,8 @@
 |---|---|---|
 | 架构文档 | `docs/架构设计.md` — 11 章，覆盖选型、分包、数据模型、云函数、性能、增长、合规、上线计划、风险 | ✅ |
 | 小程序端 | 5 个主包页面 + 1 个分包（3 页）+ 题卡组件 + 6 个 utils + 5 个 services | ✅ 骨架完整 |
-| 云函数 | 9 个：login / question / answer / checkin / wrongbook / favorite / rank / share / timer / track | ✅ 业务逻辑完整 |
+| 云函数 | 10 个：login / question / answer / checkin / wrongbook / favorite / rank / share / timer / track | ✅ 业务逻辑完整 |
+| 部署配置 | `cloudbaserc.json` + `scripts/deploy-functions.sh`，一条命令部署全部云函数 | ✅ |
 | 数据模型 | `database/schema.md` 集合结构 + `database/indexes.md` 16 条索引 | ✅ |
 | 题库导入 | `scripts/import-questions.js` 校验清洗切片，已用样例数据验证通过 | ✅ 可用 |
 | 质量检查 | 全部 JS 通过 `node --check`，全部 JSON 通过解析 | ✅ |
