@@ -10,6 +10,12 @@
 （10 提交、develop+main 双分支、103 跟踪文件、`git fsck` 无错误）。
 副本**保留未删**仅作备份。**后续一律在工作区开发，不要再动副本。**
 
+**测试体系**（2026-09-06 建立）：`npm test` 跑 `test/` 下 134 用例（零依赖 node:test），
+覆盖 11 个云函数 + 前端 utils/services + 集成旅程 + 静态检查。
+关键资产：`test/helpers/mock-sdk.js`（wx-server-sdk 内存模拟层，**忠实还原平台约束**：
+事务仅支持 collection.doc/add，事务内 where 必抛错——这是平台真实行为，勿「修掉」）。
+**提交前必须跑 `npm test`。** 云函数数量现在是 **11 个**（新增 user），建库集合 **11 个**（含 rank_cache）。
+
 **GitHub**：`git@github.com:licetus/xingce-assistant.git`（本地 remote 已同步，但 SSH 公钥尚未注册到 GitHub，暂无法推送）
 > 复制 `.git` 目录后若报「Another git process seems to be running」，
 > 是副本里陈旧的 `.git/index.lock` 被一并复制过来了。查时间戳确认是旧锁后 `rm -f` 即可。
@@ -62,6 +68,12 @@
    `scripts/import-questions.js` 已按此输出，`database/import/config.json` 同理
 8. 小程序**不能打包字体文件**（中文字体 1~3MB 吃光主包），走系统字体栈；
    数字加 `.tnum`（`font-variant-numeric: tabular-nums`）防计时器抖动
+9. **云开发事务只支持单文档操作**（collection.doc / collection.add），
+   事务内 where 查询与 where().update() 批量更新都会抛错（官方文档明确）。
+   2026-09-06 的 answer 云函数就栽在这里：事务内 where().update() 更新用户统计，
+   线上每次提交必报「成绩保存失败」。正确姿势：事务外预查档案拿 _id，事务内 doc().update()
+10. `.catch(() => null)` 静默失败会让「整个云函数缺失」级别的大洞存活（user 云函数
+    曾整体缺失但三处页面静默调用）——services 引用的云函数名必须有对应目录，靠测试守住
 
 ## 版本管理体系（已建立，勿重复搭建）
 
