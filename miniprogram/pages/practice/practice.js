@@ -31,29 +31,31 @@ Page({
 
   onLoad(options) {
     const moduleName = decodeURIComponent(options.module || '');
+    const subtype = decodeURIComponent(options.subtype || '');
     const scene = options.scene || 'practice';
     const mode = options.mode || (scene === 'checkin' ? 'batch' : 'instant');
 
-    this.setData({ moduleName, scene, mode });
+    this.setData({ moduleName, scene, mode, subtype });
     this._setStart = Date.now();
 
     wx.setNavigationBarTitle({
-      title: scene === 'checkin' ? '每日打卡' : moduleName || '专项练习'
+      title: scene === 'checkin' ? '每日打卡' : subtype || moduleName || '专项练习'
     });
 
-    this._draw(moduleName, scene);
+    this._draw(moduleName, scene, subtype);
   },
 
   onUnload() {
     track.flush();
   },
 
-  async _draw(moduleName, scene) {
+  async _draw(moduleName, scene, subtype) {
     try {
       const res = await draw({
         module: moduleName,
+        subtype: subtype || '',
         scene,
-        count: scene === 'checkin' ? 10 : 10
+        count: 10
       });
 
       if (!res || !res.list || !res.list.length) {

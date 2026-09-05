@@ -27,7 +27,7 @@ SCALE = 8          # 超采样倍率
 STROKE = 5.0       # 描边宽度（以 81×81 坐标系为准）
 
 COLOR_NORMAL = (0x9A, 0x9E, 0xA6, 255)   # 与 app.json tabBar.color 一致
-COLOR_ACTIVE = (0x2B, 0x6C, 0xF6, 255)   # 与 tabBar.selectedColor 一致
+COLOR_ACTIVE = (0x00, 0x66, 0xCC, 255)   # 与 tabBar.selectedColor 一致（UI 设计稿主色）
 
 OUT_DIR = os.path.join(os.path.dirname(__file__), "..", "miniprogram", "assets", "tabbar")
 
@@ -58,21 +58,13 @@ def draw_home(d, c):
     stroke_path(d, [(34, 65), (34, 53), (47, 53), (47, 65)], c)
 
 
-def draw_practice(d, c):
-    """练习：答题卡 / 剪贴板"""
+def draw_library(d, c):
+    """题库：分类网格（对应题库页的模块分类卡）"""
     d.rounded_rectangle(
-        [px(22), px(22), px(59), px(65)], radius=px(6), outline=c, width=int(STROKE * SCALE)
+        [px(20), px(20), px(61), px(61)], radius=px(6), outline=c, width=int(STROKE * SCALE)
     )
-    # 顶部夹子：先填白盖住板子上沿，再描边
-    d.rounded_rectangle(
-        [px(33), px(15), px(48), px(27)],
-        radius=px(3),
-        fill=(255, 255, 255, 255),
-        outline=c,
-        width=int(4.5 * SCALE),
-    )
-    stroke_path(d, [(30, 42), (51, 42)], c, width=4.5)
-    stroke_path(d, [(30, 54), (44, 54)], c, width=4.5)
+    stroke_path(d, [(40.5, 20), (40.5, 61)], c, width=4.0)
+    stroke_path(d, [(20, 40.5), (61, 40.5)], c, width=4.0)
 
 
 def draw_wrong(d, c):
@@ -102,7 +94,7 @@ def draw_mine(d, c):
 
 GLYPHS = {
     "home": draw_home,
-    "practice": draw_practice,
+    "library": draw_library,
     "wrong": draw_wrong,
     "mine": draw_mine,
 }

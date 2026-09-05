@@ -1,0 +1,54 @@
+/**
+ * 设计令牌 — 对齐 2026-08-31 定稿的 UI 设计稿（Apple 风格）
+ *
+ * 这是全站颜色、圆角、间距的唯一取值来源。
+ * 页面 wxss 一律用 var(--xxx) 引用，禁止写死色值。
+ * 改主题只改这个文件。
+ *
+ * 变量名沿用工程既有命名（--brand / --text-1 / --line 等），
+ * 不采用设计稿里的 --color-primary 命名法，避免全量改写页面样式。
+ */
+
+page {
+  /* ---------- 主色 ---------- */
+  --brand: #0066CC;            /* 唯一主色：按钮、选中态、进度条、链接 */
+  --brand-light: #E6F1FB;      /* 主色浅底：标签、次要按钮 */
+  --brand-dark: #0055AA;       /* 主色按压态 */
+
+  /* ---------- 语义色 ---------- */
+  --success: #34C759;          /* 答对 */
+  --success-light: #E8F7EC;
+  --danger: #FF3B30;           /* 答错 */
+  --danger-light: #FDECEA;
+  --warning: #FF9500;
+
+  /* ---------- 文字 ---------- */
+  --text-1: #1D1D1F;           /* 主文字（墨色） */
+  --text-2: #6E6E73;           /* 次级文字 */
+  --text-3: #9A9EA6;           /* 辅助文字、占位符 */
+  --text-inverse: #FFFFFF;     /* 深色卡片上的文字 */
+
+  /* ---------- 背景与描边 ---------- */
+  --line: #E0E0E0;             /* 发丝线边框 */
+  --bg: #F5F5F7;               /* 页面底色（羊皮纸白） */
+  --card: #FFFFFF;             /* 卡片底色 */
+  --card-dark: #272729;        /* 深色卡片（首页今日目标） */
+
+  /* ---------- 圆角 ---------- */
+  --radius: 16rpx;             /* 卡片 */
+  --radius-sm: 8rpx;           /* 标签、小元素 */
+  --radius-capsule: 999rpx;    /* 胶囊按钮、筛选 chip */
+
+  /* ---------- 间距（4pt 网格） ---------- */
+  --space-xs: 8rpx;
+  --space-sm: 16rpx;
+  --space-md: 24rpx;
+  --space-lg: 32rpx;
+  --space-xl: 48rpx;
+
+  /* ---------- 字体 ---------- */
+  /* 小程序不能打包字体文件：一个中文字体子集 1~3MB，会吃光主包预算。
+     改用系统字体栈，iOS 上 -apple-system 即 SF Pro，观感与设计稿一致。 */
+  --font-sans: -apple-system, BlinkMacSystemFont, 'PingFang SC',
+               'Helvetica Neue', 'Microsoft YaHei', sans-serif;
+}

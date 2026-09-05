@@ -1,0 +1,74 @@
+<view class="page">
+  <view class="search-bar">
+    <input
+      class="search-input"
+      type="text"
+      placeholder="{{activeModule ? '搜索「' + activeModule + '」考点' : '选择模块后可搜索考点'}}"
+      placeholder-class="search-placeholder"
+      value="{{keyword}}"
+      disabled="{{!activeModule}}"
+      bindinput="onSearch"
+      confirm-type="search"
+    />
+  </view>
+
+  <scroll-view class="chips" scroll-x>
+    <view
+      class="chip {{activeModule === '' ? 'chip-active' : ''}}"
+      data-name=""
+      bindtap="onTapModuleChip"
+    >全部</view>
+    <view
+      wx:for="{{modules}}"
+      wx:key="name"
+      class="chip {{activeModule === item.name ? 'chip-active' : ''}}"
+      data-name="{{item.name}}"
+      bindtap="onTapModuleChip"
+    >{{item.name}}</view>
+  </scroll-view>
+
+  <view wx:if="{{loading && !modules.length}}" class="empty">加载中…</view>
+
+  <block wx:elif="{{activeModule === ''}}">
+    <view class="section-title">五大模块</view>
+    <view
+      wx:for="{{modules}}"
+      wx:key="name"
+      class="module-card"
+      data-name="{{item.name}}"
+      bindtap="onTapModuleCard"
+    >
+      <view class="module-head">
+        <text class="module-name">{{item.name}}</text>
+        <text class="module-count tnum">{{item.done}}/{{item.total}}</text>
+      </view>
+      <view class="progress-track">
+        <view class="progress-fill" style="width:{{item.progress}}%"></view>
+      </view>
+      <view class="module-foot">
+        <text class="muted">已练 {{item.progress}}%</text>
+        <text class="muted">正确率 <text class="tnum">{{item.accuracy}}%</text></text>
+      </view>
+    </view>
+  </block>
+
+  <block wx:else>
+    <view class="section-title">{{activeModule}} · 选择考点</view>
+    <view class="subtype-wrap">
+      <view
+        wx:for="{{filteredSubtypes}}"
+        wx:key="*this"
+        class="chip subtype-chip"
+        data-name="{{item}}"
+        bindtap="onTapSubtype"
+      >{{item}}</view>
+      <view wx:if="{{!filteredSubtypes.length}}" class="empty">
+        {{subtypes.length ? '没有匹配的考点' : '该模块暂无细分考点，可直接整模块练习'}}
+      </view>
+    </view>
+
+    <view class="start-wrap">
+      <button class="btn" data-name="{{activeModule}}" bindtap="onTapModuleCard">整模块练习</button>
+    </view>
+  </block>
+</view>

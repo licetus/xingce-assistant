@@ -1,0 +1,104 @@
+.search-bar {
+  padding: 24rpx 24rpx 8rpx;
+}
+
+.search-input {
+  height: 72rpx;
+  padding: 0 28rpx;
+  border-radius: 36rpx;
+  background: var(--card);
+  border: 1rpx solid var(--line);
+  font-size: 28rpx;
+  color: var(--text-1);
+}
+
+.search-placeholder {
+  color: var(--text-3);
+}
+
+/* 横向滚动的模块筛选条：用 white-space + inline-block，
+   比 enable-flex 兼容性更稳 */
+.chips {
+  white-space: nowrap;
+  padding: 16rpx 24rpx;
+}
+
+.chips .chip {
+  margin-right: 16rpx;
+}
+
+.chips .chip:last-child {
+  margin-right: 0;
+}
+
+.section-title {
+  padding: 24rpx 24rpx 16rpx;
+  font-size: 30rpx;
+  font-weight: 500;
+  color: var(--text-1);
+}
+
+.module-card {
+  margin: 0 24rpx 24rpx;
+  padding: 28rpx;
+  background: var(--card);
+  border-radius: var(--radius);
+  border: 1rpx solid var(--line);
+}
+
+.module-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.module-name {
+  font-size: 32rpx;
+  font-weight: 500;
+  color: var(--text-1);
+}
+
+.module-count {
+  font-size: 26rpx;
+  color: var(--text-3);
+}
+
+.progress-track {
+  height: 8rpx;
+  margin: 20rpx 0 16rpx;
+  border-radius: 4rpx;
+  background: var(--line);
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  border-radius: 4rpx;
+  background: var(--brand);
+  transition: width 0.3s ease;
+}
+
+.module-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.subtype-wrap {
+  padding: 8rpx 24rpx 8rpx;
+}
+
+.subtype-chip {
+  margin: 0 16rpx 16rpx 0;
+}
+
+.empty {
+  padding: 60rpx 24rpx;
+  text-align: center;
+  color: var(--text-3);
+  font-size: 26rpx;
+}
+
+.start-wrap {
+  padding: 8rpx 24rpx;
+}

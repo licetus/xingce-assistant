@@ -228,12 +228,17 @@ function main() {
   if (!fs.existsSync(OUT_DIR)) fs.mkdirSync(OUT_DIR, { recursive: true });
 
   // 切片输出，避免单文件过大导致控制台导入失败
+  //
+  // 注意：云开发控制台导入的 JSON 必须是 JSON Lines 格式——
+  // 每行一个完整对象，用 \n 分隔，而不是标准 JSON 数组。
+  // 写成 JSON.stringify(chunk, null, 2) 会在控制台报「格式错误」直接导入失败。
   const files = [];
   for (let i = 0; i < valid.length; i += CHUNK_SIZE) {
     const chunk = valid.slice(i, i + CHUNK_SIZE);
     const name = `questions_${String(files.length + 1).padStart(3, '0')}.json`;
     const file = path.join(OUT_DIR, name);
-    fs.writeFileSync(file, JSON.stringify(chunk, null, 2), 'utf8');
+    const lines = chunk.map((q) => JSON.stringify(q)).join('\n') + '\n';
+    fs.writeFileSync(file, lines, 'utf8');
     files.push(name);
   }
 

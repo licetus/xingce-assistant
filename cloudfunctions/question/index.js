@@ -5,6 +5,20 @@ const db = cloud.database();
 const _ = db.command;
 const RECENT_DAYS = 7;
 
+/** 行测五大模块，顺序与题库页展示顺序一致 */
+const MODULES = ['常识判断', '言语理解', '数量关系', '判断推理', '资料分析'];
+
+const CACHE_MS = 5 * 60 * 1000;
+
+/**
+ * 模块题量与考点列表的进程内缓存。
+ * 题库是固定的（1~2 万条），只在导入新题后才变化，没必要每次请求都 count。
+ * 云函数实例复用期间有效，冷启动后自动重建，最多有 5 分钟的陈旧窗口。
+ */
+let moduleCountCache = null;
+let moduleCountCacheAt = 0;
+const subtypeCache = {};
+
 const ok = (data) => ({ code: 0, data, message: 'ok' });
 const fail = (code, message) => ({ code, data: null, message });
 
@@ -176,6 +190,82 @@ async function handleMaterial(payload) {
   return ok({ gid: res.data[0].gid, material: res.data[0].material, images: res.data[0].images });
 }
 
+/**
+ * 题库页：五大模块的题量与用户作答进度
+ *
+ * 题量走 count 并缓存 5 分钟；用户进度直接读 users.stats.byModule（已冗余，无需聚合 records）。
+ */
+async function handleModuleStats() {
+  const { OPENID } = cloud.getWXContext();
+  if (!OPENID) return fail(401, '未登录');
+
+  const now = Date.now();
+  if (!moduleCountCache || now - moduleCountCacheAt > CACHE_MS) {
+    const counts = {};
+    await Promise.all(
+      MODULES.map(async (m) => {
+        const r = await db.collection('questions').where({ module: m, status: 1 }).count();
+        counts[m] = r.total;
+      })
+    );
+    moduleCountCache = counts;
+    moduleCountCacheAt = now;
+  }
+
+  const user = await db.collection('users').where({ _openid: OPENID }).limit(1).get();
+  const byModule = (user.data[0] && user.data[0].stats && user.data[0].stats.byModule) || {};
+
+  const modules = MODULES.map((m) => {
+    const s = byModule[m] || { done: 0, correct: 0 };
+    const total = moduleCountCache[m] || 0;
+    const done = s.done || 0;
+    return {
+      name: m,
+      total,
+      done,
+      correct: s.correct || 0,
+      // 进度按「做过多少题」算；题库为空时返回 0，避免除零
+      progress: total > 0 ? Math.min(100, Math.round((done / total) * 100)) : 0
+    };
+  });
+
+  return ok({ modules });
+}
+
+/**
+ * 题库页：某模块的二级考点列表（用于筛选 chips）
+ *
+ * 云开发没有 distinct，这里只取 subtype 字段后在内存去重。
+ * 单模块题目量级约 2~3 千，配合 module+status 索引可接受，结果同样缓存 5 分钟。
+ */
+async function handleSubtypes(payload) {
+  const { OPENID } = cloud.getWXContext();
+  if (!OPENID) return fail(401, '未登录');
+
+  const { module } = payload || {};
+  if (!module) return fail(400, '缺少模块参数');
+
+  const now = Date.now();
+  const hit = subtypeCache[module];
+  if (hit && now - hit.at < CACHE_MS) return ok({ list: hit.list });
+
+  const res = await db
+    .collection('questions')
+    .where({ module, status: 1 })
+    .field({ subtype: true })
+    .limit(1000)
+    .get();
+
+  const set = new Set();
+  res.data.forEach((q) => {
+    if (q.subtype) set.add(q.subtype);
+  });
+  const list = Array.from(set).sort();
+
+  subtypeCache[module] = { at: now, list };
+  return ok({ list });
+}
+
 exports.main = async (event) => {
   const { action, payload = {} } = event;
   try {
@@ -186,6 +276,10 @@ exports.main = async (event) => {
         return await handleDetail(payload);
       case 'material':
         return await handleMaterial(payload);
+      case 'moduleStats':
+        return await handleModuleStats();
+      case 'subtypes':
+        return await handleSubtypes(payload);
       default:
         return fail(404, '未知操作: ' + action);
     }

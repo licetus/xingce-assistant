@@ -23,4 +23,14 @@ function material(gid) {
   return call('question', 'material', { gid }, { silent: true });
 }
 
-module.exports = { draw, detail, material };
+/** 题库页：五大模块的题量与用户作答进度 */
+function moduleStats() {
+  return call('question', 'moduleStats', {}, { silent: true });
+}
+
+/** 题库页：某模块的二级考点列表，用于筛选 chips */
+function subtypes(module) {
+  return call('question', 'subtypes', { module }, { silent: true });
+}
+
+module.exports = { draw, detail, material, moduleStats, subtypes };

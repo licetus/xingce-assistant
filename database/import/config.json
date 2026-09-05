@@ -1,0 +1,5 @@
+{"key":"audit_mode","value":false,"remark":"审核模式开关。true 时隐藏排行榜/邀请/奖励入口。提审前改为 true，过审后改回 false，都不用重新发版"}
+{"key":"min_version","value":"1.0.0","remark":"低于此版本强制更新（不可取消弹窗）。仅在 release 环境校验，开发版不受影响"}
+{"key":"latest_version","value":"1.0.0","remark":"低于此版本柔性提示更新，每天最多弹一次"}
+{"key":"checkin_tmpl_id","value":"","remark":"打卡订阅消息模板ID。在公众平台「订阅消息」申请后填入；留空则不推送，功能自动跳过不报错"}
+{"key":"share_text","value":"行测每日一练，五大模块全覆盖","remark":"分享卡片文案，可热更。改这里不用发版"}

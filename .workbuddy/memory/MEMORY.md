@@ -8,6 +8,21 @@
 **本地目录**：`~/WorkBuddy/xingce-assistant`（2026-08-31 由「行测小助手」改名，与 GitHub 仓库名对齐）
 **GitHub**：`git@github.com:licetus/xingce-assistant.git`（本地 remote 已同步，但 SSH 公钥尚未注册到 GitHub，暂无法推送）
 
+## 项目统一标识：`xingce-assistant@licetus`（用户明确要求）
+
+**本项目内所有需要标识的地方统一用 `xingce-assistant@licetus`**，
+不要用 `dev@example.com` 之类的通用占位符。
+
+已应用：
+
+| 位置 | 值 |
+|---|---|
+| SSH 密钥注释 | `xingce-assistant@licetus` |
+| Git 作者（仓库级 config） | `xingce-assistant <xingce-assistant@licetus>` |
+
+注意：Git 身份只改了**仓库级** config（`git config` 不带 `--global`），不影响其他项目。
+历史 10 个提交的作者仍是 `xingce-dev <dev@example.com>`，未改写（需要用户确认，见下）。
+
 ## 已确认的技术选型（不要重复询问）
 
 - **原生小程序 + 微信云开发**（用户明确否掉了 Taro/uni-app）

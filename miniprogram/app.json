@@ -1,6 +1,7 @@
 {
   "pages": [
     "pages/index/index",
+    "pages/library/library",
     "pages/practice/practice",
     "pages/result/result",
     "pages/wrong/wrong",
@@ -22,7 +23,7 @@
       "network": "all",
       "packages": ["pkg-rank"]
     },
-    "pages/mine/mine": {
+    "pages/library/library": {
       "network": "wifi",
       "packages": ["pkg-rank"]
     }
@@ -32,11 +33,11 @@
     "navigationBarBackgroundColor": "#FFFFFF",
     "navigationBarTitleText": "行测小助手",
     "navigationBarTextStyle": "black",
-    "backgroundColor": "#F5F6F8"
+    "backgroundColor": "#F5F5F7"
   },
   "tabBar": {
     "color": "#9A9EA6",
-    "selectedColor": "#2B6CF6",
+    "selectedColor": "#0066CC",
     "backgroundColor": "#FFFFFF",
     "borderStyle": "white",
     "list": [
@@ -47,10 +48,10 @@
         "selectedIconPath": "assets/tabbar/home_on.png"
       },
       {
-        "pagePath": "pages/practice/practice",
-        "text": "练习",
-        "iconPath": "assets/tabbar/practice.png",
-        "selectedIconPath": "assets/tabbar/practice_on.png"
+        "pagePath": "pages/library/library",
+        "text": "题库",
+        "iconPath": "assets/tabbar/library.png",
+        "selectedIconPath": "assets/tabbar/library_on.png"
       },
       {
         "pagePath": "pages/wrong/wrong",

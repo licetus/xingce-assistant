@@ -1,23 +1,10 @@
-page {
-  --brand: #2B6CF6;
-  --brand-light: #EDF3FF;
-  --success: #16A34A;
-  --success-light: #E8F7EE;
-  --danger: #E5484D;
-  --danger-light: #FDECEC;
-  --warning: #F5A524;
-  --text-1: #1A1C1F;
-  --text-2: #5C6270;
-  --text-3: #9A9EA6;
-  --line: #EBEDF0;
-  --bg: #F5F6F8;
-  --card: #FFFFFF;
-  --radius: 16rpx;
+@import "styles/tokens.wxss";
 
+page {
   background: var(--bg);
   color: var(--text-1);
   font-size: 28rpx;
-  font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Helvetica Neue', sans-serif;
+  font-family: var(--font-sans);
   line-height: 1.6;
 }
 
@@ -96,4 +83,38 @@ view, text, scroll-view, button, input {
 
 .safe-bottom {
   padding-bottom: env(safe-area-inset-bottom);
+}
+
+/* 等宽数字：计时器、正确率、统计数字都要加，
+   否则秒数从 9 跳到 10 时宽度变化会引起整行抖动 */
+.tnum {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: 'tnum';
+}
+
+/* 深色卡片：首页「今日目标」，设计稿专用深底 */
+.card-dark {
+  background: var(--card-dark);
+  color: var(--text-inverse);
+  border-radius: var(--radius);
+  margin: 24rpx;
+  padding: 32rpx;
+}
+
+/* 胶囊筛选标签：题库页筛选 chips */
+.chip {
+  display: inline-block;
+  padding: 12rpx 28rpx;
+  border-radius: var(--radius-capsule);
+  background: var(--card);
+  border: 1rpx solid var(--line);
+  color: var(--text-2);
+  font-size: 26rpx;
+  line-height: 1.4;
+}
+
+.chip-active {
+  background: var(--brand);
+  border-color: var(--brand);
+  color: #fff;
 }
