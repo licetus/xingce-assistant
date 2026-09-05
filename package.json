@@ -1,0 +1,15 @@
+{
+  "name": "xingce-assistant",
+  "version": "1.0.0",
+  "private": true,
+  "description": "行测小助手 - 开发与测试脚本（不进入小程序包体，miniprogramRoot=miniprogram/）",
+  "scripts": {
+    "test": "node --test test/unit/*.test.js test/integration/*.test.js test/static/*.test.js",
+    "test:unit": "node --test test/unit/*.test.js",
+    "test:integration": "node --test test/integration/*.test.js",
+    "test:static": "node --test test/static/*.test.js"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

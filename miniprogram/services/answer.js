@@ -16,15 +16,18 @@ function savePending(list) {
 /**
  * 提交作答
  * 做完 10 题一次性提交，云端单事务完成判题 + 流水 + 错题本 + 统计，一次网络往返搞定。
+ * @param {object} payload  { scene, items, taskId? }
+ * @param {object} [opts]   透传 utils/cloud.call 的选项（submitSafe 用 silent + retry:0 快速失败）
  */
-function submit({ scene = 'practice', items = [] }) {
+function submit(payload, opts = {}) {
+  const { scene = 'practice', items = [] } = payload;
   if (!items.length) return Promise.resolve(null);
 
   return call(
     'answer',
     'submit',
-    { scene, items },
-    { loading: true, loadingText: '判题中' }
+    { scene, items, taskId: payload.taskId },
+    { loading: true, loadingText: '判题中', ...opts }
   ).then((res) => {
     if (res && typeof res.wrongCount === 'number') {
       store.setWrongCount(res.wrongCount);
@@ -42,7 +45,9 @@ function enqueue(payload) {
 
 /** 尝试提交，失败自动入队；调用方无需关心网络状态 */
 function submitSafe(payload) {
-  return submit(payload).catch(() => {
+  // 静默 + 不重试：断网时快速失败入队，避免「网络不太给力」和「已保存」两个 toast 连弹，
+  // 也避免默认重试 2 次（约 1.2s）拖慢离线体验
+  return submit(payload, { silent: true, retry: 0 }).catch(() => {
     enqueue(payload);
     wx.showToast({ title: '已保存，联网后自动提交', icon: 'none' });
     return null;

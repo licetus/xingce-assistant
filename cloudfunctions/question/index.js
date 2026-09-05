@@ -144,7 +144,8 @@ async function handleDraw(payload) {
   const modStat = module && stats.byModule && stats.byModule[module]
     ? stats.byModule[module]
     : { done: stats.totalDone || 0, correct: stats.totalCorrect || 0 };
-  const rate = modStat.done > 0 ? modStat.correct / modStat.done : 0.5;
+  // 无作答数据视为新手，从简单档起步（见 difficultyMix 的设计意图），而不是取中庸值导致新用户反而抽到难题
+  const rate = modStat.done > 0 ? modStat.correct / modStat.done : 0;
 
   const done = await recentQids(OPENID);
   let candidates = pool.data.filter((q) => !done.has(q.qid));

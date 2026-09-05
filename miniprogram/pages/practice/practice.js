@@ -1,6 +1,7 @@
-const { draw } = require('../../services/question');
+const { draw, detail } = require('../../services/question');
 const { submitSafe, submit } = require('../../services/answer');
 const { submit: submitCheckin } = require('../../services/checkin');
+const { redraw: redrawWrong } = require('../../services/wrongbook');
 const { requestCheckinSubscribe } = require('../../services/user');
 const track = require('../../utils/track');
 const store = require('../../utils/store');
@@ -32,6 +33,7 @@ Page({
   onLoad(options) {
     const moduleName = decodeURIComponent(options.module || '');
     const subtype = decodeURIComponent(options.subtype || '');
+    const qid = Number(options.qid) || 0;
     const scene = options.scene || 'practice';
     const mode = options.mode || (scene === 'checkin' ? 'batch' : 'instant');
 
@@ -39,28 +41,38 @@ Page({
     this._setStart = Date.now();
 
     wx.setNavigationBarTitle({
-      title: scene === 'checkin' ? '每日打卡' : subtype || moduleName || '专项练习'
+      title: scene === 'checkin' ? '每日打卡' : scene === 'review' ? '错题重做' : subtype || moduleName || '专项练习'
     });
 
-    this._draw(moduleName, scene, subtype);
+    this._draw(moduleName, scene, subtype, qid);
   },
 
   onUnload() {
     track.flush();
   },
 
-  async _draw(moduleName, scene, subtype) {
+  async _draw(moduleName, scene, subtype, qid = 0) {
     try {
-      const res = await draw({
-        module: moduleName,
-        subtype: subtype || '',
-        scene,
-        count: 10
-      });
+      let res;
+      if (qid) {
+        // 错题本单题重做：只拉这一道题
+        const d = await detail(qid);
+        res = d ? { list: [d], taskId: null } : { list: [], taskId: null };
+      } else if (scene === 'review') {
+        // 错题重做：取未掌握错题，最久未复习的在前
+        res = await redrawWrong(10);
+      } else {
+        res = await draw({
+          module: moduleName,
+          subtype: subtype || '',
+          scene,
+          count: 10
+        });
+      }
 
       if (!res || !res.list || !res.list.length) {
         this.setData({ loading: false });
-        wx.showToast({ title: '暂无可用题目', icon: 'none' });
+        wx.showToast({ title: scene === 'review' ? '没有可重做的错题' : '暂无可用题目', icon: 'none' });
         return;
       }
 

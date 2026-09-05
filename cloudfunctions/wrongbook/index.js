@@ -16,7 +16,9 @@ async function handleList(payload) {
   const size = Math.min(Math.max(Number(payload.size) || 20, 1), 50);
   const onlyUnmastered = payload.mastered !== true;
 
-  const where = { _openid: OPENID, mastered: onlyUnmastered ? false : _.neq(false) };
+  // 默认只看未掌握；mastered=true 时查看全部（含已掌握），不过滤该字段
+  const where = { _openid: OPENID };
+  if (onlyUnmastered) where.mastered = false;
 
   const [res, countRes] = await Promise.all([
     db.collection('wrong_book')

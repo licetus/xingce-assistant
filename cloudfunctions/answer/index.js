@@ -44,20 +44,22 @@ async function handleSubmit(payload) {
   const scene = payload.scene || 'practice';
   const date = todayStr();
 
-  // 1. 取题目与已有错题记录（并行）
+  // 1. 取题目、已有错题记录与用户档案（并行）
   const qids = items.map((i) => Number(i.qid));
-  const [qRes, wbRes] = await Promise.all([
+  const [qRes, wbRes, userRes] = await Promise.all([
     db.collection('questions').where({ qid: _.in(qids) }).limit(50).get(),
     db.collection('wrong_book')
       .where({ _openid: OPENID, qid: _.in(qids) })
       .limit(50)
-      .get()
+      .get(),
+    db.collection('users').where({ _openid: OPENID }).limit(1).get()
   ]);
 
   const qMap = {};
   qRes.data.forEach((q) => (qMap[q.qid] = q));
   const wbMap = {};
   wbRes.data.forEach((w) => (wbMap[w.qid] = w));
+  const userDoc = userRes.data[0];
 
   // 2. 判题
   const judged = [];
@@ -140,6 +142,8 @@ async function handleSubmit(payload) {
   });
 
   // 4. 事务：错题本 + 用户统计（强一致）
+  //    注意：云开发事务只支持单文档操作（collection.doc / collection.add），
+  //    where().update() 批量更新在事务内不可用，用户档案必须在第 1 步先查出来
   const statUpdate = {
     'stats.totalDone': _.inc(addDone),
     'stats.totalCorrect': _.inc(addCorrect)
@@ -158,7 +162,29 @@ async function handleSubmit(payload) {
         await transaction.collection('wrong_book').doc(op.id).update({ data: op.data });
       }
     }
-    await transaction.collection('users').where({ _openid: OPENID }).update({ data: statUpdate });
+
+    if (userDoc) {
+      await transaction.collection('users').doc(userDoc._id).update({ data: statUpdate });
+    } else {
+      // 登录竞态兜底：档案缺失（理论上前端已保证先登录）时直接建档，
+      // 与 login 云函数 newUser 的结构保持一致
+      const byModule = {};
+      Object.keys(modDelta).forEach((m) => {
+        byModule[m] = { done: modDelta[m].done, correct: modDelta[m].correct };
+      });
+      await transaction.collection('users').add({
+        data: {
+          _openid: OPENID,
+          profile: { nickName: '', avatarUrl: '', grade: '' },
+          inviteBy: null,
+          checkin: { streak: 0, maxStreak: 0, lastDate: '', totalDays: 0 },
+          stats: { totalDone: addDone, totalCorrect: addCorrect, byModule },
+          subMsg: { checkin: 0 },
+          createdAt: db.serverDate(),
+          lastActiveAt: db.serverDate()
+        }
+      });
+    }
     await transaction.commit();
   } catch (err) {
     await transaction.rollback().catch(() => {});
