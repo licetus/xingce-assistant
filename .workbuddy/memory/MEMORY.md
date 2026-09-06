@@ -16,7 +16,8 @@
 事务仅支持 collection.doc/add，事务内 where 必抛错——这是平台真实行为，勿「修掉」）。
 **提交前必须跑 `npm test`。** 云函数数量现在是 **11 个**（新增 user），建库集合 **11 个**（含 rank_cache）。
 
-**GitHub**：`git@github.com:licetus/xingce-assistant.git`（本地 remote 已同步，但 SSH 公钥尚未注册到 GitHub，暂无法推送）
+**GitHub**：`git@github.com:licetus/xingce-assistant.git`（**2026-09-06 20:35 推送成功**，4 commit 上 develop，
+20:55 main 同步到 develop 同 commit `6bc6b63`；SSH 公钥指纹 `SHA256:beTGzPDSTO6XGnsilrr63ouV2FU2KpsHwftvU5sc4Bg`）
 > 复制 `.git` 目录后若报「Another git process seems to be running」，
 > 是副本里陈旧的 `.git/index.lock` 被一并复制过来了。查时间戳确认是旧锁后 `rm -f` 即可。
 
@@ -86,7 +87,13 @@
   资源点付费模式，199 元/月，月赠 330,000 点 ≈ 330 元）
 - 别名 `datizhushou`（与旧环境同名，控制台请改为 `datizhushou-trial` 区分）
 - 升级轨迹：14:50 个人版 → 15:24 标准版（**EnvId 不变**，TCB 升级不换 ID）
-- 已就位：11 函数 / 11 集合 / 11 ADMINONLY / **3 个 timer 触发器**（升级后配额恢复）
+- 已就位：11 函数 / 11 集合 / 11 ADMINONLY / **4 个 timer 触发器**（升级后配额恢复）
+  - dailyTask `0 5 0 * * * *` 每日 00:05
+  - rebuildRank `0 10 * * * * *` 每小时 10 分
+  - archive `0 30 3 * * * *` 每日 03:30
+  - healthCheck `0 10 9 * * * *` 每日 09:10（写 events 集合告警）
+- 已就位：**19 条业务复合索引**（drop 默认 `_openid_1` 后建 `openid_unique`，含 qgroups/users/rank_cache
+  的 5 条单字段唯一索引 + 14 条复合键）— 经 MCP 直传数组 OK
 - 标准版配额解封：timeout **900s**（个人版 3s 锁死）/ 内存可调 / 调用 800 万次/月 / 容量 100GB / CLS 3 天
 - 11 函数当前 Timeout 配置：login 10s / question 20s / answer 20s / checkin 15s / wrongbook 15s /
   favorite 10s / rank 20s / share 20s / track 10s / timer 20s / user 10s
@@ -147,15 +154,13 @@ hotfix 必须**同时合回 main 和 develop**。当前在 `develop`。
 
 **用户待办**
 - ~~填云环境 ID~~ ✅ 2026-09-06 完成（config.js + cloudbaserc.json）
-- ~~建库：11 集合 + 权限 + 16 索引 + 导入数据~~ ✅ 2026-09-06 经 MCP 完成（旧环境）
-- ~~云开发环境切换：体验版 → 个人版~~ ✅ 2026-09-06 下午（11 函数 + 11 集合 + 权限已就位）
-- ⚠️ **新个人版业务索引（18 条）用户控制台手动建**（MCP bug，详见 `docs/环境迁移操作手册.md`）
-- ⚠️ **新个人版业务数据（config 5 + 样例题 6）用户控制台手动导入**
-- ⚠️ **个人版无 timer 配额**：需改 `cloudfunctions/checkin/index.js` 按需生成 daily_task
-- ⚠️ **个人版无 timer 配额**：需改 `cloudfunctions/rank/index.js` 改实时聚合
-- ⚠️ **个人版 1 个月到期**（2026-10-06）：**9-30 之前升标准版**
-- 填微信 AppID（`project.config.json` 的 `touristappid`）——联调真机前必须
-  - 注：后端 WxAppId 已绑 `wx7adcac3ea7e60ba6`，前端 `project.config.json` 第 51 行已写该值，**已不是占位符**
+- ~~建库：11 集合 + 权限 + 19 索引 + 导入数据~~ ✅ 2026-09-06 经 MCP 完成
+- ~~云开发环境切换：体验版 → 个人版 → 标准版~~ ✅ 2026-09-06 全程完成（3 个版本）
+- ~~注册 GitHub SSH 公钥并推送 main/develop~~ ✅ 2026-09-06 20:35 完成
+- ⚠️ **旧体验版 alias 改名**：控制在台手动 `datizhushou` → `datizhushou-trial`
+  （MCP `manageEnv` 不支持改 alias，必须走控制台）
+- ⚠️ **配置 GitHub Secret**：TENCENTCLOUD_SECRETID / TENCENTCLOUD_SECRETKEY（让 healthcheck job 工作）
+- ⚠️ **配置 branch protection**：test job 通过才能 merge 到 main（推荐）
 - 导入正式题库（当前云端仅 6 道样例题，正式题库用
   `scripts/import-questions.js` 产出 JSON Lines 后控制台或 MCP 导入）
 
@@ -170,7 +175,7 @@ hotfix 必须**同时合回 main 和 develop**。当前在 `develop`。
 - ICP 备案：**2026-09-05 已启动**。注意平台初审后工信部 12381 短信核验须 **24 小时内**完成，
   超时自动驳回落得重来。安排专人盯短信
 - 类目：先「工具 > 效率」，稳定后加「教育 > 在线教育」
-- 注册 GitHub SSH 公钥并推送 main/develop
+- ~~注册 GitHub SSH 公钥并推送 main/develop~~ ✅ 2026-09-06
 - 榜单「击败百分比」当前本地估算，V1.1 换云端真实分位
 
 ## 已落地资产
