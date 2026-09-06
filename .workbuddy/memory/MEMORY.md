@@ -42,7 +42,9 @@
 - 基础库最低 2.25.0，目标主包 < 1.2MB（当前实测 288KB）
 - 主体：企业/个体工商户（可开微信支付）
 - 题库：自有自研，用户提供数据
-- **云开发必须标准版**：个人版云函数超时锁死 3s、内存锁死 256MB，判题事务必然超时
+- **云开发必须标准版**（架构要求）：个人版云函数超时锁死 3s、内存锁死 256MB，
+  判题事务必然超时。**2026-09-06 实际切换到个人版**（用户接受限制并要"仅切代码"），
+  answer 单次提交要限制到 10 题内，1 个月内（2026-10-06 之前）升标准版
 - **设计令牌用现有变量名**（`--brand` / `--text-1` / `--line` 等），唯一取值来源是
   `miniprogram/styles/tokens.wxss`。**不要改用设计稿的 `--color-primary` 命名法**——
   全量改名要动每个页面却零收益。主色 `#0066CC`。
@@ -74,6 +76,27 @@
    线上每次提交必报「成绩保存失败」。正确姿势：事务外预查档案拿 _id，事务内 doc().update()
 10. `.catch(() => null)` 静默失败会让「整个云函数缺失」级别的大洞存活（user 云函数
     曾整体缺失但三处页面静默调用）——services 引用的云函数名必须有对应目录，靠测试守住
+11. **聚合累加器在 `db.command.aggregate` 命名空间**（`$.sum`），不在 `db.command`。
+    2026-09-06 部署冒烟时 rank 栽在这里（`_.sum is not a function`，榜单全挂）；
+    mock 层同步改为真实结构后本地可暴露此类误用
+
+## 云环境与部署状态（2026-09-06 标准版·资源点计费）
+
+- **当前 EnvId**：`pro-d3g3e4uab0265b1c6`（上海，**标准版 `baas_pf_standard`**，
+  资源点付费模式，199 元/月，月赠 330,000 点 ≈ 330 元）
+- 别名 `datizhushou`（与旧环境同名，控制台请改为 `datizhushou-trial` 区分）
+- 升级轨迹：14:50 个人版 → 15:24 标准版（**EnvId 不变**，TCB 升级不换 ID）
+- 已就位：11 函数 / 11 集合 / 11 ADMINONLY / **3 个 timer 触发器**（升级后配额恢复）
+- 标准版配额解封：timeout **900s**（个人版 3s 锁死）/ 内存可调 / 调用 800 万次/月 / 容量 100GB / CLS 3 天
+- 11 函数当前 Timeout 配置：login 10s / question 20s / answer 20s / checkin 15s / wrongbook 15s /
+  favorite 10s / rank 20s / share 20s / track 10s / timer 20s / user 10s
+- 资源点扣费顺序：套餐配额 > 资源包 > 按量使用；超出 330,000 点/月开启超限不停服
+- 历史环境：`datizhushou-d7gmes5l22e316f09`（体验版）2026-09-06 15:19 自动停服 ISOLATE，资源保留
+- **关键发现**：MCP `manageFunctions createFunctionTrigger` 用**7 段 cron**（秒 分 时 日 月 星期 年），
+  5 段会报"必须使用 7 段格式"；`0 10 * * * * *` = 每小时 10 分 ✅，`0 10 * * *` ❌
+- `miniprogram/config.js`、`cloudbaserc.json` EnvId 已对齐
+- 详见 `docs/云开发运维手册.md` §1.2（标准版配额速查）
+- 详见 `docs/环境迁移操作手册.md`（升级历史）
 
 ## 版本管理体系（已建立，勿重复搭建）
 
@@ -97,33 +120,44 @@ hotfix 必须**同时合回 main 和 develop**。当前在 `develop`。
 **强制更新**通过 `config.min_version` / `latest_version` 控制，见 `utils/update.js`。
 注意：只在 `envVersion === 'release'` 校验，否则开发版会被自己的弹窗挡死。
 
-## 云开发部署机制（重要认知）
+## 部署与监控机制（关键经验）
 
-**云开发不是代码托管平台，是运行平台。** 云端没有 commit / 分支 / diff，
-每次部署整体覆盖 `$LATEST`，历史只保留**显式发布**的版本快照。
-代码丢了只能拉回 `$LATEST`，拉不回历史中间态 —— **Git 才是唯一真相**。
-
-**部署**：`cloudbaserc.json` 声明式配置 + `scripts/deploy-functions.sh` 一键部署
-（`tcb fn deploy --all`）。`envId` 留占位值，用 `--env-id` 覆盖，
-避免真实环境 ID 进 Public 仓库。
-
-**云函数灰度**（注意：没有「别名」概念，那是腾讯云 SCF 的）：
-- 版本 = 快照（代码 + 配置），**发布后锁定不可修改**
-- 始终存在 `$LATEST`，部署改的就是它
-- **流量只能在两个版本间分配，总和必须 100%**
-- **同一用户固定路由**：带 openid 的请求始终打到同一版本
-- 流程：发版本1 → 版本1 100% → 部署新代码 → $LATEST 10% 观察 → 逐步 100%
-
-**云托管（CloudRun）是另一套东西**：容器服务，需 Dockerfile，
-唯一支持 GitHub/GitLab Webhook 自动构建，但与云开发是两套独立控制台。当前规模用不上。
+- **MCP 部署云函数必须用 `updateFunctionCode` 不是 `createFunction force=true`**：
+  - 后者会**清空所有已有触发器**（2026-09-06 升级部署验证过，会让 dailyTask/rebuildRank/archive 全丢）
+  - 增量更新必须传 `functionRootPath` 指向 cloudfunctions/ 目录
+- **`updateFunctionCode force=false` 会静默跳过**：如果代码哈希没变就不真部署（2026-09-06 healthCheck
+  测试时第一次部署失败就是这个原因）。**永远用 force=true**
+- **MCP `invokeFunction` 是 AI 调试神器**：能直接调云函数，传 `{action, payload}`，
+  系统会自动注入 OPENID。timer.healthCheck 验证就是用这个
+- **timer cron 必须 7 段**（秒 分 时 日 月 星期 年）：5 段报"必须使用 7 段格式"
+- **TCB 升级不换 EnvId**：个人版→标准版升级后 EnvId 不变，本地配置零改动
+- **CLS 主动开**：个人版/标准版新环境自动开通 CLS（logset+topic 都有），无需手动
+- **GitHub Actions 已建立**（`.github/workflows/ci.yml`，2026-09-06 离线校验通过）：
+  - `test` job：Node 18/20/22 矩阵跑 `npm test`（134 用例全绿），push + PR 触发
+  - `cloudbase-healthcheck` job：仅 develop push 触发，调用 `scripts/cloudbase-healthcheck.js`
+  - **离线校验清单**：✓ JS 语法 / ✓ YAML 解析 / ✓ npm test / ✓ exit code 分支
+  - 启用 healthcheck 需配 2 个 GitHub Secret：`TENCENTCLOUD_SECRETID` / `TENCENTCLOUD_SECRETKEY`
+- **timer 健康监控（healthCheck）**：
+  - `cloudfunctions/timer/index.js` 加了 `healthCheck` action
+  - 触发器 cron `0 10 9 * * * *`（每天 09:10，晚于 dailyTask 00:05 留 9 小时容错窗口）
+  - 检查 4 项：daily_task_today / rank_cache_any / records_count / users_count
+  - 异常时自动写 `events` 集合（type=health_alert），可在 CloudBase 控制台或 CLS 日志查看
 
 ## 待办
 
-**用户待办（卡住联调，我代劳不了）**
-- 填 AppID（`project.config.json` 的 `touristappid`）与云环境 ID（`app.js` 的 `wx.cloud.init`）
-- 买云开发标准版
-- 建库：10 集合 + 全部设「仅管理端可读写」+ 16 条索引 + 导入题库
-  （照 `database/import/导入说明.md`，约 20 分钟）
+**用户待办**
+- ~~填云环境 ID~~ ✅ 2026-09-06 完成（config.js + cloudbaserc.json）
+- ~~建库：11 集合 + 权限 + 16 索引 + 导入数据~~ ✅ 2026-09-06 经 MCP 完成（旧环境）
+- ~~云开发环境切换：体验版 → 个人版~~ ✅ 2026-09-06 下午（11 函数 + 11 集合 + 权限已就位）
+- ⚠️ **新个人版业务索引（18 条）用户控制台手动建**（MCP bug，详见 `docs/环境迁移操作手册.md`）
+- ⚠️ **新个人版业务数据（config 5 + 样例题 6）用户控制台手动导入**
+- ⚠️ **个人版无 timer 配额**：需改 `cloudfunctions/checkin/index.js` 按需生成 daily_task
+- ⚠️ **个人版无 timer 配额**：需改 `cloudfunctions/rank/index.js` 改实时聚合
+- ⚠️ **个人版 1 个月到期**（2026-10-06）：**9-30 之前升标准版**
+- 填微信 AppID（`project.config.json` 的 `touristappid`）——联调真机前必须
+  - 注：后端 WxAppId 已绑 `wx7adcac3ea7e60ba6`，前端 `project.config.json` 第 51 行已写该值，**已不是占位符**
+- 导入正式题库（当前云端仅 6 道样例题，正式题库用
+  `scripts/import-questions.js` 产出 JSON Lines 后控制台或 MCP 导入）
 
 **开发待办**
 - 首页按新 UI 稿重做（今日目标深色卡、专项 6 宫格）
@@ -150,4 +184,4 @@ hotfix 必须**同时合回 main 和 develop**。当前在 `develop`。
 - `miniprogram/assets/tabbar/`：首页/题库/错题本/我的 × 未选中/选中
 - `miniprogram/styles/tokens.wxss`：设计令牌唯一取值来源
 - `miniprogram/pages/library/`：题库页（模块进度卡 + 考点 chips + 搜索）
-- `cloudfunctions/question`：`moduleStats` / `subtypes` 两个 action，带 5 分钟进程内缓存
+- **`scripts/cloudbase-healthcheck.js`**：CI 用 CloudBase 环境健康检查（依赖 2 个 GitHub Secret）
