@@ -516,7 +516,11 @@ const command = {
   lte: (v) => cmd('lte', { val: v }),
   in: (v) => cmd('in', { val: v }),
   inc: (n) => ({ __cmd: 'inc', val: n }),
-  sum: (field) => ({ __cmd: 'sum', field: field !== undefined ? String(field) : '' })
+  // 聚合累加器与真实 SDK 一致：挂在 command.aggregate 下，
+  // 顶层不存在 sum（本地就能暴露 _.sum 误用，勿加回去）
+  aggregate: {
+    sum: (field) => ({ __cmd: 'sum', field: field !== undefined ? String(field) : '' })
+  }
 };
 
 const cloudExport = {

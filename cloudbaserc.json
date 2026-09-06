@@ -1,6 +1,6 @@
 {
   "version": "2.1",
-  "envId": "REPLACE_WITH_YOUR_ENV_ID",
+  "envId": "datizhushou-d7gmes5l22e316f09",
   "functionRoot": "cloudfunctions",
   "functions": [
     {
@@ -81,6 +81,15 @@
       "handler": "index.main",
       "timeout": 10,
       "memorySize": 128,
+      "installDependency": true,
+      "ignore": ["node_modules/**", ".git/**"]
+    },
+    {
+      "name": "user",
+      "runtime": "Nodejs18.15",
+      "handler": "index.main",
+      "timeout": 10,
+      "memorySize": 256,
       "installDependency": true,
       "ignore": ["node_modules/**", ".git/**"]
     },

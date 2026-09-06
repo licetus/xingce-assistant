@@ -12,7 +12,9 @@ const OPENID = 'u-login-001';
 beforeEach(() => {
   mockSdk.__mock.resetDb({});
   mockSdk.__mock.setOpenid(OPENID);
-  mockSdk.__mock.setNow(new Date('2026-09-06T10:00:00+08:00'));
+  // 跟随真实时钟：本文件用例全用 Date.now() 相对时间造数据，
+  // 若固定 mock 时间会随墙钟漂移产生偶发失败（serverDate 写回旧时间）
+  mockSdk.__mock.setNow(new Date());
 });
 
 test('login：新用户建档，结构完整', async () => {

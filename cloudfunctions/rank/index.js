@@ -3,6 +3,7 @@ cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV });
 
 const db = cloud.database();
 const _ = db.command;
+const $ = db.command.aggregate;
 
 const ok = (data) => ({ code: 0, data, message: 'ok' });
 const fail = (code, message) => ({ code, data: null, message });
@@ -60,7 +61,7 @@ async function buildRank(type) {
     .collection('checkins')
     .aggregate()
     .match(where)
-    .group({ _id: '$_openid', totalCorrect: _.sum('$correctCount'), totalDone: _.sum('$doneCount'), days: _.sum(1) })
+    .group({ _id: '$_openid', totalCorrect: $.sum('$correctCount'), totalDone: $.sum('$doneCount'), days: $.sum(1) })
     .sort({ totalCorrect: -1 })
     .limit(200)
     .end()
@@ -91,7 +92,7 @@ async function buildSelf(openid, type) {
     .collection('checkins')
     .aggregate()
     .match(where)
-    .group({ _id: '$_openid', totalCorrect: _.sum('$correctCount'), totalDone: _.sum('$doneCount'), days: _.sum(1) })
+    .group({ _id: '$_openid', totalCorrect: $.sum('$correctCount'), totalDone: $.sum('$doneCount'), days: $.sum(1) })
     .end()
     .catch(() => ({ list: [] }));
 
