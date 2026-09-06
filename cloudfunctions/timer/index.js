@@ -102,6 +102,80 @@ async function handleArchive() {
   return ok({ removed: (res.stats && res.stats.removed) || 0, before });
 }
 
+/**
+ * 健康巡检：检查 daily_task / rank_cache / records / users 集合状态
+ *
+ * 由 `healthCheck` 定时触发器每天 09:10 触发（晚于 dailyTask 00:05，留出 9 小时容错窗口）。
+ * 任何子项失败都会写一条 type=health_alert 到 events 集合，可在管理后台 / CLS 日志里查。
+ *
+ * 注意：故意不调外网 webhook——云函数默认不开外网，避免对环境出流量计费。
+ * 真要推送，把 webhook URL 写进 config.health_webhook，用 wx-server-sdk 的
+ * cloud.callFunction + 内部 HTTP 函数转发（不走外网）。
+ */
+async function handleHealthCheck() {
+  const today = todayStr();
+  const checks = [];
+
+  // 1. daily_task 今日是否生成（dailyTask 触发器是否成功跑）
+  try {
+    const dtRes = await db.collection('daily_task').where({ date: today }).limit(1).get();
+    checks.push({ name: 'daily_task_today', ok: dtRes.data.length > 0, today });
+  } catch (e) {
+    checks.push({ name: 'daily_task_today', ok: false, error: e.message });
+  }
+
+  // 2. rank_cache 是否有数据（rebuildRank 触发器是否成功跑）
+  try {
+    const rcRes = await db.collection('rank_cache').limit(1).get();
+    checks.push({ name: 'rank_cache_any', ok: rcRes.data.length > 0 });
+  } catch (e) {
+    checks.push({ name: 'rank_cache_any', ok: false, error: e.message });
+  }
+
+  // 3. records 总数（容量预警：1000 万条为硬上限，500 万条为软预警）
+  try {
+    const recRes = await db.collection('records').count();
+    checks.push({
+      name: 'records_count',
+      ok: recRes.total < 10_000_000,
+      count: recRes.total,
+      warn: recRes.total > 5_000_000
+    });
+  } catch (e) {
+    checks.push({ name: 'records_count', ok: false, error: e.message });
+  }
+
+  // 4. users 总数（用户量指标，不算失败）
+  try {
+    const uRes = await db.collection('users').count();
+    checks.push({ name: 'users_count', ok: true, count: uRes.total });
+  } catch (e) {
+    checks.push({ name: 'users_count', ok: false, error: e.message });
+  }
+
+  const failed = checks.filter((c) => !c.ok);
+  const healthy = failed.length === 0;
+
+  // 异常 → 写 events 集合（不阻塞返回，让监控知道出问题了）
+  if (!healthy) {
+    try {
+      await db.collection('events').add({
+        data: {
+          type: 'health_alert',
+          level: failed.length > 1 ? 'critical' : 'warn',
+          checks,
+          failed: failed.map((f) => f.name),
+          createdAt: db.serverDate()
+        }
+      });
+    } catch (e) {
+      console.error('[timer] healthCheck write event failed', e);
+    }
+  }
+
+  return ok({ healthy, checks, failed: failed.length, ts: Date.now() });
+}
+
 exports.main = async (event) => {
   const { action, payload = {} } = event;
   try {
@@ -112,6 +186,8 @@ exports.main = async (event) => {
         return await handleRebuildRank();
       case 'archive':
         return await handleArchive();
+      case 'healthCheck':
+        return await handleHealthCheck();
       default:
         return fail(404, '未知操作: ' + action);
     }
