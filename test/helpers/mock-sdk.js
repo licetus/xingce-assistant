@@ -31,6 +31,10 @@ const state = {
   failOn: [],
   /** serverDate 固定返回值（默认 new Date()） */
   now: null,
+  /** 是否已冻结全局 Date（让 new Date()/Date.now() 也走 setNow 设的时间） */
+  frozen: false,
+  /** 原生 Date 引用，用于解冻时还原 */
+  OriginalDate: null,
   /** openapi 结果注入 */
   openapiResult: null,
   /** 已上传文件：{ cloudPath: fileID } */
@@ -59,6 +63,37 @@ function setContext(ctx) {
 
 function setOpenid(openid) {
   state.context.OPENID = openid;
+}
+
+// ---------------------------------------------------------------------------
+// 时钟冻结：让 new Date() / Date.now() 与 setNow 同步
+//
+// 业务代码常混用 db.serverDate() 与裸 new Date()，前者受 setNow 控制，
+// 后者裸拿真实时钟。把 setNow 设为某时刻时，把全局 Date 同步替换为
+// 「无参时返回该时刻」的代理，跨午夜后测试不再因真实时钟漂移而挂。
+// ---------------------------------------------------------------------------
+
+function _freezeDate(d) {
+  const OD = state.OriginalDate || globalThis.Date;
+  state.OriginalDate = OD;
+  function FD(...args) {
+    if (args.length === 0) return new OD(d.getTime());
+    return new OD(...args);
+  }
+  FD.prototype = OD.prototype;
+  FD.now = () => d.getTime();
+  FD.parse = OD.parse.bind(OD);
+  FD.UTC = OD.UTC.bind(OD);
+  globalThis.Date = FD;
+  state.frozen = true;
+}
+
+function _unfreezeDate() {
+  if (state.OriginalDate) {
+    globalThis.Date = state.OriginalDate;
+    state.OriginalDate = null;
+    state.frozen = false;
+  }
 }
 
 // ---------------------------------------------------------------------------
@@ -587,6 +622,13 @@ const cloudExport = {
     },
     setNow(d) {
       state.now = d;
+      if (d) _freezeDate(d);
+      else _unfreezeDate();
+    },
+    /** 解冻全局 Date，回到真实时钟 */
+    resetNow() {
+      _unfreezeDate();
+      state.now = null;
     },
     setOpenapiResult(r) {
       state.openapiResult = r;
