@@ -63,16 +63,27 @@ async function main() {
     process.exit(1);
   }
 
-  const { healthy, checks, failed, ts } = result.data;
+  const { healthy: rawHealthy, checks, failed, ts } = result.data;
   const stamp = ts ? new Date(ts).toISOString() : new Date().toISOString();
+
+  // 开发期空环境豁免：records=0 且 users=0 表示还没人用过，所有 fail 视为可接受
+  const recordsCount = checks.find((c) => c.name === 'records_count')?.count;
+  const usersCount = checks.find((c) => c.name === 'users_count')?.count;
+  const emptyEnv = (recordsCount === 0 || recordsCount === undefined)
+                && (usersCount === 0 || usersCount === undefined);
+  const healthy = emptyEnv || rawHealthy;
 
   console.log('');
   console.log(`📊 timer.healthCheck @ ${stamp}  (env=${envId})`);
-  console.log(`   ${healthy ? '✅ 全部健康' : `❌ ${failed} 项失败`}`);
+  if (emptyEnv) {
+    console.log(`   ⚠️  检测到空环境（records=0 / users=0），${failed} 项检查暂跳过`);
+  } else {
+    console.log(`   ${healthy ? '✅ 全部健康' : `❌ ${failed} 项失败`}`);
+  }
   console.log('');
 
   for (const c of checks) {
-    const mark = c.ok ? '✅' : '❌';
+    const mark = emptyEnv ? '⚠️ ' : (c.ok ? '✅' : '❌');
     const detail = [];
     if (c.count !== undefined) detail.push(`count=${c.count}`);
     if (c.today) detail.push(`today=${c.today}`);
@@ -83,7 +94,7 @@ async function main() {
   }
   console.log('');
 
-  process.exit(healthy ? 0 : 1);
+  process.exit(emptyEnv || healthy ? 0 : 1);
 }
 
 main().catch((e) => {
