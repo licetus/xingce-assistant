@@ -29,7 +29,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node }}
-          cache: npm
+          # 项目零运行时依赖，无 package-lock.json。不开 npm cache（开了反而要求 lockfile）。
 
       # 项目零运行时依赖，npm install 只是为了触发 cache 预热（不装任何东西）
       - name: Install (no-op, zero deps)
@@ -69,7 +69,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: npm
+          # 项目零运行时依赖，无 package-lock.json。不开 npm cache。
+
 
       - name: Install @cloudbase/node-sdk (临时)
         run: npm install @cloudbase/node-sdk --no-save --no-audit --no-fund --silent
