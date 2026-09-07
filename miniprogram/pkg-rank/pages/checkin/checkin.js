@@ -1,6 +1,4 @@
 const { calendar } = require('../../../services/checkin');
-const { rank } = require('../../../services/checkin');
-const fmt = require('../../../utils/format');
 
 Page({
   data: {

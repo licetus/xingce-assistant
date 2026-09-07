@@ -51,7 +51,9 @@ Page({
 
       const canvas = nodeRes.node;
       const ctx = canvas.getContext('2d');
-      const dpr = wx.getSystemInfoSync().pixelRatio;
+      // getWindowInfo 是新 API；旧基础库降级 getSystemInfoSync
+      const win = wx.getWindowInfo ? wx.getWindowInfo() : wx.getSystemInfoSync();
+      const dpr = win.pixelRatio;
 
       canvas.width = W * dpr;
       canvas.height = H * dpr;
@@ -94,10 +96,20 @@ Page({
   _paint(ctx, qrImg) {
     const { accuracy, total, correct, module, streak } = this.data;
 
+    // Canvas 2D 不能用 CSS 变量，色值与 styles/tokens.wxss 保持一致，改主题需同步改这里
+    const C = {
+      brand: '#0066CC',
+      text1: '#1D1D1F',
+      text2: '#6E6E73',
+      text3: '#9A9EA6',
+      warning: '#FF9500',
+      line: '#E0E0E0'
+    };
+
     ctx.fillStyle = '#FFFFFF';
     ctx.fillRect(0, 0, W, H);
 
-    ctx.fillStyle = '#2B6CF6';
+    ctx.fillStyle = C.brand;
     ctx.fillRect(0, 0, W, 96);
 
     ctx.fillStyle = '#FFFFFF';
@@ -110,7 +122,7 @@ Page({
     ctx.fillText(module ? module + ' · 练习报告' : '今日练习报告', W / 2, 68);
     ctx.globalAlpha = 1;
 
-    ctx.fillStyle = '#2B6CF6';
+    ctx.fillStyle = C.brand;
     ctx.font = '500 64px sans-serif';
     ctx.fillText(String(accuracy), W / 2, 168);
 
@@ -118,21 +130,21 @@ Page({
     ctx.font = '20px sans-serif';
     ctx.fillText('%', W / 2 + numWidth / 2 + 14, 168);
 
-    ctx.fillStyle = '#5C6270';
+    ctx.fillStyle = C.text2;
     ctx.font = '13px sans-serif';
     ctx.fillText('正确率', W / 2, 194);
 
-    ctx.fillStyle = '#1A1C1F';
+    ctx.fillStyle = C.text1;
     ctx.font = '15px sans-serif';
     ctx.fillText(`答对 ${correct} / ${total} 题`, W / 2, 232);
 
     if (streak > 0) {
-      ctx.fillStyle = '#F5A524';
+      ctx.fillStyle = C.warning;
       ctx.font = '13px sans-serif';
       ctx.fillText(`连续打卡 ${streak} 天`, W / 2, 258);
     }
 
-    ctx.strokeStyle = '#EBEDF0';
+    ctx.strokeStyle = C.line;
     ctx.lineWidth = 1;
     ctx.beginPath();
     ctx.moveTo(40, 288);
@@ -141,7 +153,7 @@ Page({
 
     ctx.drawImage(qrImg, W / 2 - 45, 306, 90, 90);
 
-    ctx.fillStyle = '#9A9EA6';
+    ctx.fillStyle = C.text3;
     ctx.font = '12px sans-serif';
     ctx.fillText('长按识别小程序码', W / 2, 418);
     ctx.fillText('一起刷题，一起上岸', W / 2, 438);

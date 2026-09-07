@@ -27,7 +27,7 @@ async function handleQrcode(payload) {
       page,
       width: 280,
       autoColor: false,
-      lineColor: { r: 43, g: 108, b: 246 },
+      lineColor: { r: 0, g: 102, b: 204 },
       isHyaline: false
     });
 

@@ -50,8 +50,16 @@ Branch protection 的 3 个 API 坑见 docs/branch-protection.md（Content-Type 
 - 解析需自购纸质真题集 + 自主编写（抄第三方解析侵权），见 docs/question-bank-sources.md
 
 ## 待办
-- ⚠️ rebuildRank E11000 bug：rank_cache 全局榜 _openid=null 与用户榜唯一索引冲突，每小时报错
-- 首页 UI 重做（W2：深色卡、专项 6 宫格）；其余页面套令牌
+- ~~rebuildRank E11000~~ ✅ 2026-09-07 修复：rank_cache 误建 _openid 唯一索引已删（writeNoSqlDatabaseStructure DropIndexes），
+  rank.rebuild 验证通过。教训：**固定 _id 的缓存集合（week/total）不要建 _openid 唯一索引**，
+  缺失字段都按 null 计入唯一索引必撞 E11000。已写入 schema.md + 环境迁移操作手册.md 防复踩
+- 题库管线已入库（commit 1ee1d4d）：fetch-gkzhenti/merge-fetched/to-mcp-format 脚本 + 2 份文档；
+  invalid.json/questions.mcp.json 移到 database/raw/（非 JSON Lines 工作产物，静态测试只扫 database/import/*.json）
+- ~~首页 UI 重做~~ ✅ 2026-09-07 commit d029776：问候+头像 / 今日目标深色卡 / 专项 6 宫格（5 模块+随机练习），
+  CI 4/4 全绿（healthcheck success = 新腾讯云密钥已生效）。缓存 key 已升 home-v2
+- ~~其余页面套令牌~~ ✅ 2026-09-07 commit 157783a：全站 wxss 写死色值清零（新增 --disabled-bg 令牌），
+  仅深色卡 rgba 白为透明度叠加。npm test 134/134，CI 见 origin/develop
+- 打卡 / 排行榜 / 战报海报联调
 - Excel 填 682 题解析
 - ICP 备案 2026-09-05 启动，12381 短信 24h 内须核验
 - 类目先「工具>效率」，后加「教育>在线教育」；提审清单见 docs/上线提审清单.md
