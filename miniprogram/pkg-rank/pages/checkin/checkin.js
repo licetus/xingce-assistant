@@ -7,10 +7,13 @@ Page({
     maxStreak: 0,
     totalDays: 0,
     todayChecked: false,
+    showRank: true,
     weekdayRow: ['日', '一', '二', '三', '四', '五', '六']
   },
 
   onLoad() {
+    // 审核模式下隐藏排行榜入口（与首页快捷入口同一开关）
+    this.setData({ showRank: getApp().canShow('rank') });
     this._load();
   },
 
@@ -41,6 +44,8 @@ Page({
   },
 
   onTapRank() {
+    // 双保险：即使 UI 被绕过，审核模式下也不放行跳转
+    if (!getApp().canShow('rank')) return;
     wx.navigateTo({ url: '/pkg-rank/pages/rank/rank' });
   }
 });
