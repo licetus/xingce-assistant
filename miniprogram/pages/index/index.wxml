@@ -1,56 +1,73 @@
 <view class="page">
-  <view class="hero">
-    <view class="hero-left">
-      <view class="hero-title">今日行测</view>
-      <view class="hero-sub">
-        {{totalDone > 0 ? '已练 ' + totalDone + ' 题 · 正确率 ' + accuracy + '%' : '开始你的第一次练习'}}
-      </view>
+
+  <!-- 顶部问候 + 头像 -->
+  <view class="header">
+    <view class="header-text">
+      <view class="greeting">{{greeting}}，{{nickName || '考友'}}</view>
+      <view class="greeting-sub" wx:if="{{totalDone > 0}}">已练 {{totalDone}} 题 · 正确率 {{accuracy}}%</view>
+      <view class="greeting-sub" wx:else>开始你的第一次练习</view>
     </view>
-    <view class="hero-streak" wx:if="{{streak > 0}}">
-      <text class="streak-num">{{streak}}</text>
-      <text class="streak-unit">天连续</text>
-    </view>
+    <image
+      class="avatar"
+      src="{{avatarUrl || '/assets/default-avatar.png'}}"
+      bindtap="onTapMine"
+    />
   </view>
 
-  <view class="card checkin-card" bindtap="onTapCheckin">
-    <view class="checkin-left">
-      <view class="checkin-title">每日打卡 · 10 题</view>
-      <view class="muted">坚持打卡，看得见的进步</view>
+  <!-- 今日目标 · 深色卡 -->
+  <view class="goal-card" bindtap="onTapCheckin">
+    <view class="goal-main">
+      <view class="goal-title">今日目标 · 10 题</view>
+      <view class="goal-sub">
+        <block wx:if="{{todayChecked}}">今日已完成 · 连续 {{streak}} 天</block>
+        <block wx:elif="{{streak > 0}}">已连续 {{streak}} 天，别断了</block>
+        <block wx:else>每天 10 题，坚持看得见</block>
+      </view>
     </view>
-    <view class="btn {{todayChecked ? 'btn-disabled' : ''}} checkin-btn">
+    <view class="goal-btn {{todayChecked ? 'goal-btn-done' : ''}}" hover-class="goal-btn-hover">
       {{todayChecked ? '已打卡' : '去打卡'}}
     </view>
   </view>
 
+  <!-- 专项练习 6 宫格 -->
   <view class="section-title">专项练习</view>
-  <view class="card">
-    <view class="module-grid">
-      <view
-        class="module-item"
-        wx:for="{{modules}}"
-        wx:key="name"
-        data-name="{{item.name}}"
-        bindtap="onTapModule"
-      >
-        <view class="module-name">{{item.name}}</view>
-        <view class="module-meta">
-          <block wx:if="{{item.done > 0}}">
-            {{item.done}} 题 · {{item.accuracy}}%
-          </block>
-          <block wx:else>未开始</block>
-        </view>
+  <view class="card grid-card">
+    <view
+      class="grid-item"
+      wx:for="{{modules}}"
+      wx:key="name"
+      hover-class="grid-item-hover"
+      data-name="{{item.name}}"
+      bindtap="onTapModule"
+    >
+      <view class="grid-icon">{{item.icon}}</view>
+      <view class="grid-name">{{item.name}}</view>
+      <view class="grid-meta">
+        <block wx:if="{{item.done > 0}}">{{item.done}} 题 · {{item.accuracy}}%</block>
+        <block wx:else>未开始</block>
       </view>
+    </view>
+    <view
+      class="grid-item grid-item-random"
+      hover-class="grid-item-hover"
+      bindtap="onTapRandom"
+    >
+      <view class="grid-icon grid-icon-shuffle">随</view>
+      <view class="grid-name">随机练习</view>
+      <view class="grid-meta">五模块混合</view>
     </view>
   </view>
 
+  <!-- 快捷入口 -->
   <view class="quick-row">
-    <view class="card quick-item" bindtap="onTapWrong">
-      <view class="quick-num">{{wrongCount}}</view>
+    <view class="card quick-item" hover-class="quick-hover" bindtap="onTapWrong">
+      <view class="quick-num tnum">{{wrongCount}}</view>
       <view class="muted">错题待复习</view>
     </view>
-    <view class="card quick-item" bindtap="onTapRank" wx:if="{{showRank}}">
-      <view class="quick-num">{{streak}}</view>
+    <view class="card quick-item" hover-class="quick-hover" bindtap="onTapRank" wx:if="{{showRank}}">
+      <view class="quick-num tnum">{{streak}}</view>
       <view class="muted">打卡排行榜</view>
     </view>
   </view>
+
 </view>

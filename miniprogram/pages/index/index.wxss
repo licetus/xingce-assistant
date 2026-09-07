@@ -1,95 +1,161 @@
-.hero {
+/* ============ 顶部问候 ============ */
+.header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 40rpx 32rpx 24rpx;
+  padding: 40rpx 32rpx 32rpx;
 }
 
-.hero-title {
+.greeting {
   font-size: 44rpx;
   font-weight: 500;
   color: var(--text-1);
 }
 
-.hero-sub {
+.greeting-sub {
   font-size: 26rpx;
   color: var(--text-2);
   margin-top: 8rpx;
 }
 
-.hero-streak {
-  text-align: right;
+.avatar {
+  width: 88rpx;
+  height: 88rpx;
+  border-radius: 50%;
+  background: var(--bg);
 }
 
-.streak-num {
-  font-size: 48rpx;
-  font-weight: 500;
-  color: var(--brand);
-}
-
-.streak-unit {
-  font-size: 22rpx;
-  color: var(--text-3);
-  display: block;
-}
-
-.checkin-card {
+/* ============ 今日目标 · 深色卡 ============ */
+.goal-card {
+  margin: 0 32rpx;
+  padding: 36rpx 32rpx;
+  border-radius: var(--radius);
+  background: var(--card-dark);
+  color: var(--text-inverse);
   display: flex;
   align-items: center;
   justify-content: space-between;
 }
 
-.checkin-title {
-  font-size: 32rpx;
+.goal-title {
+  font-size: 34rpx;
+  font-weight: 500;
+  color: var(--text-inverse);
+}
+
+.goal-sub {
+  font-size: 24rpx;
+  color: rgba(255, 255, 255, 0.6);
+  margin-top: 10rpx;
+}
+
+.goal-btn {
+  flex-shrink: 0;
+  padding: 0 36rpx;
+  height: 72rpx;
+  line-height: 72rpx;
+  border-radius: var(--radius-capsule);
+  background: var(--brand);
+  color: var(--text-inverse);
+  font-size: 28rpx;
   font-weight: 500;
 }
 
-.checkin-btn {
-  width: 180rpx;
-  height: 72rpx;
-  line-height: 72rpx;
-  font-size: 28rpx;
-  border-radius: 36rpx;
+.goal-btn-done {
+  background: transparent;
+  border: 1rpx solid rgba(255, 255, 255, 0.3);
+  color: rgba(255, 255, 255, 0.7);
+  font-weight: 400;
 }
 
+.goal-btn-hover {
+  background: var(--brand-dark);
+}
+
+.goal-btn-done.goal-btn-hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* ============ 专项练习 6 宫格 ============ */
 .section-title {
   font-size: 30rpx;
   font-weight: 500;
-  padding: 8rpx 32rpx 0;
+  color: var(--text-1);
+  padding: 40rpx 32rpx 16rpx;
 }
 
-.module-grid {
+.grid-card {
+  margin: 0 16rpx;
+  padding: 8rpx 0;
   display: flex;
   flex-wrap: wrap;
 }
 
-.module-item {
+.grid-item {
   width: 33.33%;
-  padding: 24rpx 0;
+  box-sizing: border-box;
+  padding: 28rpx 0 24rpx;
   text-align: center;
+  border-radius: var(--radius-sm);
 }
 
-.module-name {
-  font-size: 28rpx;
+.grid-item-hover {
+  background: var(--bg);
+}
+
+/* 深色 hairline：卡片内 2 行 3 列的网格线 */
+.grid-item:not(:nth-child(3n)) {
+  border-right: 1rpx solid var(--line);
+}
+
+.grid-item:nth-child(n + 4) {
+  border-top: 1rpx solid var(--line);
+}
+
+.grid-icon {
+  width: 72rpx;
+  height: 72rpx;
+  line-height: 72rpx;
+  margin: 0 auto;
+  border-radius: 20rpx;
+  background: var(--brand-light);
+  color: var(--brand);
+  font-size: 34rpx;
+  font-weight: 500;
+}
+
+.grid-icon-shuffle {
+  background: var(--success-light);
+  color: var(--success);
+}
+
+.grid-name {
+  font-size: 26rpx;
   color: var(--text-1);
+  margin-top: 14rpx;
 }
 
-.module-meta {
-  font-size: 22rpx;
+.grid-meta {
+  font-size: 20rpx;
   color: var(--text-3);
-  margin-top: 6rpx;
+  margin-top: 4rpx;
 }
 
+/* ============ 快捷入口 ============ */
 .quick-row {
   display: flex;
-  padding: 0 16rpx;
+  padding: 24rpx 16rpx 0;
 }
 
 .quick-item {
   flex: 1;
-  margin: 8rpx;
+  margin: 0 8rpx;
   text-align: center;
   padding: 32rpx 16rpx;
+}
+
+.quick-hover {
+  background: var(--bg);
 }
 
 .quick-num {
