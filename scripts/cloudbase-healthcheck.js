@@ -33,9 +33,10 @@ async function main() {
   }
 
   // @cloudbase/node-sdk 在 CI 临时安装，require 走 npm 解析
-  let CloudBase;
+  // v3+ 改用 init() 工厂（旧 new CloudBase 已移除）
+  let init;
   try {
-    CloudBase = require('@cloudbase/node-sdk').CloudBase;
+    ({ init } = require('@cloudbase/node-sdk'));
   } catch (e) {
     console.error('❌ @cloudbase/node-sdk 未安装。CI 工作流会自动装，本地调试请跑：');
     console.error('   npm install @cloudbase/node-sdk --no-save');
@@ -43,14 +44,14 @@ async function main() {
     process.exit(3);
   }
 
-  const app = new CloudBase({ secretId, secretKey });
+  // env 必须在 init 时指定（新版 SDK callFunction 不再接受 env 字段）
+  const app = init({ secretId, secretKey, env: envId });
 
   let res;
   try {
     res = await app.callFunction({
       name: 'timer',
-      data: { action: 'healthCheck', payload: {} },
-      env: envId
+      data: { action: 'healthCheck', payload: {} }
     });
   } catch (e) {
     console.error('❌ 调用 timer healthCheck 异常：', e.message);
