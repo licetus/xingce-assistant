@@ -81,3 +81,12 @@ avatar/
 assets/avatar-*.png
 assets/xingce-avatar.png
 assets/avatar-candidates/
+
+# -------------------------------------------
+# 9. 题库抓取管线的工作产物（可再生，不入库）
+# -------------------------------------------
+# fetch-gkzhenti.js / merge-fetched.js / to-mcp-format.js 的输出。
+# 重新生成：npm run fetch:all && node scripts/merge-fetched.js
+database/raw/
+database/import/batches/
+database/import/fetched-all.csv

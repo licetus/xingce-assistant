@@ -27,6 +27,11 @@ const MODULES = ['常识判断', '言语理解', '数量关系', '判断推理',
 const CHUNK_SIZE = 1000; // 云开发控制台单文件建议不超过 1 万条，这里保守取 1000
 const OUT_DIR = path.join(__dirname, '..', 'database', 'import');
 
+// --allow-empty-analysis：跳过「解析缺失」校验
+// 用途：批量灌入来源题库（gkzhenti.cn 等只含答案不含解析的），
+//       让题目先上线待审，解析字段填「待补」标识，后续人工补
+let ALLOW_EMPTY_ANALYSIS = false;
+
 /** 表头容错：一个字段可能有多种写法 */
 const FIELD_ALIAS = {
   module: ['module', '模块', '题型', '专项', 'category'],
@@ -171,7 +176,10 @@ function validate(q) {
   if (q.answer.some((a) => !q.options.find((o) => o.key === a))) {
     errors.push('答案不在选项内');
   }
-  if (!q.analysis || q.analysis.length < 5) errors.push('解析缺失或过短');
+  // 解析非空校验：默认严格，--allow-empty-analysis 跳过
+  if (!ALLOW_EMPTY_ANALYSIS) {
+    if (!q.analysis || q.analysis.length < 5) errors.push('解析缺失或过短');
+  }
   return errors;
 }
 
@@ -180,6 +188,15 @@ function main() {
   if (!input) {
     console.error('用法: node scripts/import-questions.js <题库.json 或 题库.csv>');
     process.exit(1);
+  }
+
+  // 解析剩余参数
+  for (let i = 3; i < process.argv.length; i++) {
+    const a = process.argv[i];
+    if (a === '--allow-empty-analysis' || a === '--no-analysis') {
+      ALLOW_EMPTY_ANALYSIS = true;
+      console.log('⚠️  跳过解析非空校验（题目带「待补」占位入库）');
+    }
   }
 
   const rows = readInput(input);
@@ -218,11 +235,11 @@ function main() {
       console.log(`  第 ${it.row} 行 [${it.errors.join(' / ')}]`);
     });
     fs.writeFileSync(
-      path.join(OUT_DIR, 'invalid.json'),
+      path.join(__dirname, '..', 'database', 'raw', 'invalid.json'),
       JSON.stringify(invalid, null, 2),
       'utf8'
     );
-    console.log(`\n完整失败清单已写入 database/import/invalid.json`);
+    console.log(`\n完整失败清单已写入 database/raw/invalid.json`);
   }
 
   if (!fs.existsSync(OUT_DIR)) fs.mkdirSync(OUT_DIR, { recursive: true });
