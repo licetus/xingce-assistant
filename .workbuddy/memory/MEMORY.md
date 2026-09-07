@@ -27,11 +27,13 @@ V1 范围锁定：专项刷题+解析、错题本+收藏、每日打卡+排行�
 
 ## 云环境
 EnvId `pro-d3g3e4uab0265b1c6`（上海标准版，资源点计费 199/月）。配置在 miniprogram/config.js + cloudbaserc.json。
-11 函数 / 11 集合 / 19 索引 / 4 触发器（dailyTask 00:05、rebuildRank 每小时:10、archive 03:30、healthCheck 09:10）。
+11 函数 / 11 集合 / 19 索引 / 5 触发器（dailyTask 00:05、rebuildRank 每小时:10、archive 03:30、healthCheck 09:10、notify 09:00 打卡提醒）。
 timeout：login10/question20/answer20/checkin15/wrongbook15/favorite10/rank20/share20/track10/timer20/user10。
 
 ## 部署铁律
 - MCP 增量部署用 `updateFunctionCode force=true`（force=false 哈希相同会静默跳过；createFunction force=true 会清空触发器）
+- **MCP createFunctionTrigger 是全量覆盖语义**：一次调用替换全部触发器，多次单独调用互相覆盖——必须一次传全量，改后必 listFunctionTriggers 核对
+- **定时触发器 event 是 {Type:'Timer',TriggerName}**：云函数 main 必须做 TriggerName→action 映射，否则定时任务静默 404
 - timer cron 必须 7 段（秒 分 时 日 月 星期 年）
 - MCP `invokeFunction` 可直接调云函数调试（自动注入 OPENID）
 - TCB 升级不换 EnvId
@@ -64,10 +66,16 @@ Branch protection 的 3 个 API 坑见 docs/branch-protection.md（Content-Type 
   带守卫接口的云端冒烟不可信，以本地测试+真机预览为准；无守卫 action（timer/rebuild）可冒烟
 - ~~隐私授权~~ ✅ 2026-09-07 commit 9fc963e：utils/privacy.js 三件套（getSetting/ensure/openContract，
   <2.32.3 降级放行），海报保存前 ensure()，144/144 测试。**用户手动：微信后台隐私指引须声明相册（仅写入）**
-- 下一步：埋点/audit_mode 验证 → 提审（真机预览验证海报/小程序码颜色）
+- ~~埋点/audit_mode/config 验证~~ ✅ 2026-09-08：track.batch 冒烟 ✅；config 空集合已补 6 条基线
+  （audit_mode 端到端翻转验证 ✅）；checkin 页排行榜入口补 audit_mode 守卫（9393c45）
+- ~~订阅消息链路~~ ✅ 2026-09-08 commit 8f45501：timer.notify 发送侧 + TriggerName 映射修复 +
+  触发器全量重建 5 个 + grantSubscribe 封顶。模板 ID 已入 config（hVLbKY19...c），notify 冒烟通过，
+  今日 dailyTask 已补跑。**真机需验证：提醒消息字段 thing1/thing2 与用户模板是否匹配**
+  （不匹配报 47003 → 控制台改 config.checkin_tmpl_fields 即可，不用发版）
+- 下一步：真机预览（海报颜色/小程序码/订阅提醒字段）→ 提审（audit_mode 置 true）
 - Excel 填 682 题解析
 - ICP 备案 2026-09-05 启动，12381 短信 24h 内须核验
 - 类目先「工具>效率」，后加「教育>在线教育」；提审清单见 docs/上线提审清单.md
-- 用户手动：控制台改 alias datizhushou→datizhushou-trial；申请 checkin_tmpl_id
+- 用户手动：控制台改 alias datizhushou→datizhushou-trial
 - 榜单击败百分比本地估算，V1.1 换云端分位
 - 详见 `.workbuddy/memory/2026-09-07.md` 当日日志
