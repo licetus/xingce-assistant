@@ -41,6 +41,8 @@ const state = {
   files: {},
   /** getTempFileURL 可见文件集合（Set of cloudPath） */
   tempVisible: new Set(),
+  /** subscribeMessage.send 调用记录（timer 打卡提醒测试断言用） */
+  subSends: [],
   /** 自增 id */
   _idSeq: 1
 };
@@ -51,6 +53,7 @@ function resetDb(seeds = {}) {
   state.registry = {};
   state.files = {};
   state.tempVisible = new Set();
+  state.subSends = [];
   state._idSeq = 1;
   for (const name of Object.keys(seeds)) {
     state.collections[name] = seeds[name].map((doc) => ({ ...doc }));
@@ -595,6 +598,13 @@ const cloudExport = {
         if (state.openapiResult instanceof Error) throw state.openapiResult;
         return state.openapiResult || { buffer: Buffer.from('fake-qrcode') };
       }
+    },
+    subscribeMessage: {
+      async send(opts) {
+        if (state.openapiResult instanceof Error) throw state.openapiResult;
+        state.subSends.push(opts);
+        return { errCode: 0, errMsg: 'subscribeMessage.send:ok' };
+      }
     }
   },
   async uploadFile({ cloudPath }) {
@@ -632,6 +642,10 @@ const cloudExport = {
     },
     setOpenapiResult(r) {
       state.openapiResult = r;
+    },
+    /** 读取 subscribeMessage.send 调用记录（断言用） */
+    subSends() {
+      return state.subSends;
     },
     markTempVisible(p) {
       state.tempVisible.add(p);

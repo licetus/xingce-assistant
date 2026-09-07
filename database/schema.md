@@ -196,6 +196,7 @@
 |---|---|---|
 | `audit_mode` | boolean | **审核模式**。置 true 时隐藏排行榜、邀请、奖励入口。提审前打开，通过后关掉 |
 | `checkin_tmpl_id` | string | 打卡订阅消息模板 ID |
+| `checkin_tmpl_fields` | object | 打卡提醒模板字段映射 {date,streak}，默认 thing1/thing2 |
 | `share_text` | string | 分享文案，可随时换 |
 | `min_version` | string | **强制更新线**。低于此版本弹不可取消的弹窗阻断使用，用于严重 Bug 或不兼容变更 |
 | `latest_version` | string | 柔性更新提示。低于此版本弹一次性提示，用户可忽略，每天最多打扰一次 |

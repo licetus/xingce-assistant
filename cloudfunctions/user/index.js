@@ -62,7 +62,7 @@ async function handleUpdateProfile(payload) {
 
 /**
  * 记录订阅消息授权结果
- * 授权 +1，封顶 3 次（对应 checkin 云函数的 canSubscribe 阈值），防无限推送骚扰
+ * 授权 +1，封顶 3 次（timer 打卡提醒的发送池），防无限推送骚扰
  */
 async function handleGrantSubscribe(payload) {
   const { OPENID } = cloud.getWXContext();
@@ -73,6 +73,9 @@ async function handleGrantSubscribe(payload) {
 
   const userRes = await db.collection('users').where({ _openid: OPENID }).limit(1).get();
   if (!userRes.data.length) return fail(404, '用户不存在');
+
+  const current = ((userRes.data[0].subMsg || {})[type]) || 0;
+  if (current >= 3) return ok({ granted: false, reason: 'quota_full' });
 
   await db
     .collection('users')

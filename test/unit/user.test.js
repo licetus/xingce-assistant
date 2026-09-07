@@ -99,3 +99,14 @@ test('未登录返回 401', async () => {
   assert.equal((await cf.main({ action: 'updateProfile', payload: { nickName: 'x' } })).code, 401);
   assert.equal((await cf.main({ action: 'grantSubscribe', payload: { type: 'checkin' } })).code, 401);
 });
+
+test('grantSubscribe：配额封顶 3 次后不再累加', async () => {
+  const cf = loadCf('user');
+  mockSdk.__mock.resetDb({ users: [newUser(OPENID, { subMsg: { checkin: 3 } })] });
+
+  const res = await cf.main({ action: 'grantSubscribe', payload: { type: 'checkin' } });
+  assert.equal(res.code, 0);
+  assert.equal(res.data.granted, false);
+  assert.equal(res.data.reason, 'quota_full');
+  assert.equal(mockSdk.__mock.raw('users')[0].subMsg.checkin, 3, '封顶后不应再累加');
+});

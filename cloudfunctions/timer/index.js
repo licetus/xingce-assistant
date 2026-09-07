@@ -176,8 +176,85 @@ async function handleHealthCheck() {
   return ok({ healthy, checks, failed: failed.length, ts: Date.now() });
 }
 
+/**
+ * 打卡提醒：向「昨天打过、今天还没打」且仍有订阅配额的用户发订阅消息
+ *
+ * 一次性订阅消息每次授权只能发一条，users.subMsg.checkin 是剩余配额：
+ * 前端打卡成功后拉授权（requestCheckinSubscribe），用户同意一次
+ * user.grantSubscribe +1（封顶 3）；这里发送成功 -1。配额自然衰减，
+ * 长期未授权的用户不会被打扰。
+ *
+ * 模板字段 key（thing1/thing2/date1...）因申请的模板而异，放
+ * config.checkin_tmpl_fields = { date: 'thing1', streak: 'thing2' } 可热更，
+ * 字段对不上时不用发版，控制台改 config 即可。
+ */
+async function handleCheckinNotice() {
+  const cfgRes = await db.collection('config').limit(20).get();
+  const cfg = {};
+  cfgRes.data.forEach((c) => {
+    cfg[c.key] = c.value;
+  });
+
+  const tmplId = cfg.checkin_tmpl_id;
+  if (!tmplId) return ok({ skipped: 'no_tmpl_id' });
+
+  const fields = cfg.checkin_tmpl_fields || {};
+  const dateKey = fields.date || 'thing1';
+  const streakKey = fields.streak || 'thing2';
+
+  const today = todayStr();
+  // 提醒对象：昨天/前天打过（连续中或刚断一天，最有挽回价值）、今天还没打、有配额。
+  // 今天打卡会把 lastDate 更新为 today，天然不会重复提醒。
+  const activeDays = [
+    todayStr(new Date(Date.now() - 24 * 60 * 60 * 1000)),
+    todayStr(new Date(Date.now() - 2 * 24 * 60 * 60 * 1000))
+  ];
+
+  const res = await db
+    .collection('users')
+    .where({
+      'subMsg.checkin': _.gt(0),
+      'checkin.lastDate': _.in(activeDays)
+    })
+    .limit(200)
+    .get();
+
+  let sent = 0;
+  let failed = 0;
+  for (const u of res.data) {
+    try {
+      await cloud.openapi.subscribeMessage.send({
+        touser: u._openid,
+        templateId: tmplId,
+        page: 'pages/index/index',
+        data: {
+          [dateKey]: { value: today },
+          [streakKey]: { value: `${(u.checkin && u.checkin.streak) || 0}天` }
+        }
+      });
+      // 发送成功才扣配额；失败保留，下次提醒再试
+      await db
+        .collection('users')
+        .doc(u._id)
+        .update({ data: { 'subMsg.checkin': _.inc(-1) } });
+      sent += 1;
+    } catch (e) {
+      failed += 1;
+      // 常见失败：47003 模板字段不匹配 → 改 config.checkin_tmpl_fields；
+      // 43101 用户拒收 → 配额下次授权后恢复
+      console.error('[timer] notice send failed', u._openid, e.errCode || e.message);
+    }
+  }
+  return ok({ candidates: res.data.length, sent, failed, today });
+}
+
 exports.main = async (event) => {
-  const { action, payload = {} } = event;
+  // 云函数间调用走 event.action；定时触发器的 event 是
+  // { Type: 'Timer', TriggerName: 'dailyTask' }，需要映射（此前漏了这层，
+  // 定时任务一直 404，靠手动调用掩盖了问题）
+  const triggerName = event && event.Type === 'Timer' ? event.TriggerName : '';
+  const action = event && event.action ? event.action : triggerName;
+  const payload = (event && event.payload) || {};
   try {
     switch (action) {
       case 'dailyTask':
@@ -188,6 +265,8 @@ exports.main = async (event) => {
         return await handleArchive();
       case 'healthCheck':
         return await handleHealthCheck();
+      case 'notify':
+        return await handleCheckinNotice();
       default:
         return fail(404, '未知操作: ' + action);
     }

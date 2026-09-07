@@ -114,3 +114,73 @@ test('archive：删除失败不抛错（静默降级）', async () => {
   assert.equal(res.code, 0);
   assert.equal(res.data.removed, 0);
 });
+
+// ---------- 打卡提醒 notify ----------
+
+function seedNoticeUsers() {
+  mockSdk.__mock.resetDb({
+    // 当前测试时钟 2026-09-06：today=09-06 yesterday=09-05
+    config: [
+      { key: 'checkin_tmpl_id', value: 'TMPL_X' },
+      { key: 'checkin_tmpl_fields', value: { date: 'thing1', streak: 'thing2' } }
+    ],
+    users: [
+      // 该发：昨天打过、今天没打、有配额
+      { _id: 'u1', _openid: 'oA', checkin: { streak: 3, lastDate: '2026-09-05' }, subMsg: { checkin: 1 } },
+      // 不发：今天已打卡（lastDate 已更新）
+      { _id: 'u2', _openid: 'oB', checkin: { streak: 5, lastDate: '2026-09-06' }, subMsg: { checkin: 2 } },
+      // 不发：无配额
+      { _id: 'u3', _openid: 'oC', checkin: { streak: 1, lastDate: '2026-09-05' }, subMsg: { checkin: 0 } },
+      // 不发：断签太久（lastDate 是前天以前）
+      { _id: 'u4', _openid: 'oD', checkin: { streak: 0, lastDate: '2026-09-01' }, subMsg: { checkin: 5 } }
+    ]
+  });
+}
+
+test('notify：只提醒昨天打过+今天没打+有配额的用户，发送成功扣配额', async () => {
+  seedNoticeUsers();
+  const cf = loadCf('timer');
+  const res = await cf.main({ action: 'notify', payload: {} });
+
+  assert.equal(res.code, 0);
+  assert.equal(res.data.candidates, 1);
+  assert.equal(res.data.sent, 1);
+  assert.equal(res.data.failed, 0);
+
+  const sends = mockSdk.__mock.subSends();
+  assert.equal(sends.length, 1);
+  assert.equal(sends[0].touser, 'oA');
+  assert.equal(sends[0].templateId, 'TMPL_X');
+  assert.equal(sends[0].data.thing1.value, '2026-09-06');
+  assert.equal(sends[0].data.thing2.value, '3天');
+  assert.equal(mockSdk.__mock.raw('users')[0].subMsg.checkin, 0, '发送成功应扣配额');
+});
+
+test('notify：未配置模板 ID 时跳过', async () => {
+  mockSdk.__mock.resetDb({ config: [], users: [] });
+  const cf = loadCf('timer');
+  const res = await cf.main({ action: 'notify', payload: {} });
+  assert.equal(res.data.skipped, 'no_tmpl_id');
+  assert.equal(mockSdk.__mock.subSends().length, 0);
+});
+
+test('notify：发送失败不扣配额（下次再试）', async () => {
+  seedNoticeUsers();
+  mockSdk.__mock.setOpenapiResult(new Error('mock send fail'));
+  const cf = loadCf('timer');
+  const res = await cf.main({ action: 'notify', payload: {} });
+
+  assert.equal(res.data.sent, 0);
+  assert.equal(res.data.failed, 1);
+  assert.equal(mockSdk.__mock.raw('users')[0].subMsg.checkin, 1, '失败不应扣配额');
+  mockSdk.__mock.setOpenapiResult(null);
+});
+
+test('定时触发器 event：TriggerName 映射到 action（此前一直 404 的修复）', async () => {
+  const cf = loadCf('timer');
+  const res = await cf.main({ Type: 'Timer', TriggerName: 'dailyTask' });
+
+  assert.equal(res.code, 0);
+  assert.equal(res.data.date, '2026-09-06');
+  assert.equal(mockSdk.__mock.raw('daily_task').length, 1);
+});
