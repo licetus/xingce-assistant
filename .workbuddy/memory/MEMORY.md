@@ -78,6 +78,6 @@ Branch protection 的 3 个 API 坑见 docs/branch-protection.md（Content-Type 
 - ICP 备案 2026-09-05 启动，12381 短信 24h 内须核验
 - 类目先「工具>效率」，后加「教育>在线教育」；提审清单见 docs/上线提审清单.md
 - 用户手动：控制台改 alias datizhushou→datizhushou-trial
-- 用户手动：UV≥1000 后开通流量主，广告位 ID 填 config（ad_banner_home/ad_video），见 docs/广告接入指南.md
+- 用户手动：UV≥500 后开通流量主（2026 门槛已下调），广告位 ID 填 config（ad_banner_home/ad_video），见 docs/广告接入指南.md
 - 榜单击败百分比本地估算，V1.1 换云端分位
 - 详见 `.workbuddy/memory/2026-09-07.md` / `2026-09-08.md` 当日日志
