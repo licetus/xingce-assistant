@@ -59,7 +59,12 @@ Branch protection 的 3 个 API 坑见 docs/branch-protection.md（Content-Type 
   CI 4/4 全绿（healthcheck success = 新腾讯云密钥已生效）。缓存 key 已升 home-v2
 - ~~其余页面套令牌~~ ✅ 2026-09-07 commit 157783a：全站 wxss 写死色值清零（新增 --disabled-bg 令牌），
   仅深色卡 rgba 白为透明度叠加。npm test 134/134，CI 见 origin/develop
-- 打卡 / 排行榜 / 战报海报联调
+- ~~打卡/排行榜/海报联调~~ ✅ 2026-09-07 commit f05d552：海报画布+小程序码旧主色残留已修（share 已重部署）。
+  **MCP invokeFunction 的 OPENID 注入不稳定**（checkin 通/rank/user 401，线上代码 diff 验证守卫一致）——
+  带守卫接口的云端冒烟不可信，以本地测试+真机预览为准；无守卫 action（timer/rebuild）可冒烟
+- ~~隐私授权~~ ✅ 2026-09-07 commit 9fc963e：utils/privacy.js 三件套（getSetting/ensure/openContract，
+  <2.32.3 降级放行），海报保存前 ensure()，144/144 测试。**用户手动：微信后台隐私指引须声明相册（仅写入）**
+- 下一步：埋点/audit_mode 验证 → 提审（真机预览验证海报/小程序码颜色）
 - Excel 填 682 题解析
 - ICP 备案 2026-09-05 启动，12381 短信 24h 内须核验
 - 类目先「工具>效率」，后加「教育>在线教育」；提审清单见 docs/上线提审清单.md
