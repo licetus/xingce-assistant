@@ -48,7 +48,8 @@ Branch protection 的 3 个 API 坑见 docs/branch-protection.md（Content-Type 
 ## 题库现状
 - 官方不托管历年真题（scs.gov.cn 已下线，bm.scs.gov.cn 考后归档 404）
 - 来源 gwy.gkzhenti.cn（只含题干+答案，无解析），`scripts/fetch-gkzhenti.js` 抓 9 套 1185 题
-- **682 题已入库 questions 集合**（analysis=「待补」占位），管道：fetch→merge→import(--allow-empty-analysis)→node-sdk 分批 add
+- **682 题已入库 questions 集合**（analysis=「待补」占位，source 全部 'real'），管道：fetch→merge→import(--allow-empty-analysis)→node-sdk 分批 add
+- 题目来源标识：source 'real' 真题 | 'ai' AI生成(V1.1) | 'self' 自研；卡片挂标签，AI 不标识属审核红线（2026-09-08 d2c6dae）
 - 解析需自购纸质真题集 + 自主编写（抄第三方解析侵权），见 docs/question-bank-sources.md
 
 ## 待办
@@ -77,5 +78,6 @@ Branch protection 的 3 个 API 坑见 docs/branch-protection.md（Content-Type 
 - ICP 备案 2026-09-05 启动，12381 短信 24h 内须核验
 - 类目先「工具>效率」，后加「教育>在线教育」；提审清单见 docs/上线提审清单.md
 - 用户手动：控制台改 alias datizhushou→datizhushou-trial
+- 用户手动：UV≥1000 后开通流量主，广告位 ID 填 config（ad_banner_home/ad_video），见 docs/广告接入指南.md
 - 榜单击败百分比本地估算，V1.1 换云端分位
-- 详见 `.workbuddy/memory/2026-09-07.md` 当日日志
+- 详见 `.workbuddy/memory/2026-09-07.md` / `2026-09-08.md` 当日日志
