@@ -326,3 +326,59 @@ test('tryShowOpenInterstitial：恰好 3 小时按冷却内处理，3h+1min 放�
   assert.equal(await play(cst('2026-09-08 12:00')), true, '恰好满 3h 放行');
   assert.equal(created.length, 2);
 });
+
+// ---------- 调试面板：force 展示 + 状态查询 ----------
+
+test('tryShowOpenInterstitial：force 跳过冷却与时段频控，启用门禁仍生效', async () => {
+  installApp({ config: { ad_interstitial: 'adunit-i1' } });
+  const created = installInterstitialAd();
+
+  const play = async (ts, opts) => {
+    const p = ad.tryShowOpenInterstitial(ts, opts);
+    const inst = created[created.length - 1];
+    inst._cbs.load.forEach((fn) => fn());
+    inst._cbs.close.forEach((fn) => fn());
+    return p;
+  };
+
+  assert.equal(await play(cst('2026-09-08 09:00')), true);
+  // 同日同时段 + 冷却期内：非 force 被拦，force 放行
+  assert.equal(await play(cst('2026-09-08 09:10')), false);
+  assert.equal(await play(cst('2026-09-08 09:10'), { force: true }), true);
+  assert.equal(created.length, 2);
+
+  // force 下成功展示同样记录频控
+  assert.equal(ad.interstitialState(cst('2026-09-08 09:10')).cooldownRemain > 0, true);
+});
+
+test('tryShowOpenInterstitial：审核模式下 force 也被门禁拦住', async () => {
+  installApp({ config: { ad_interstitial: 'adunit-i1' }, isAuditMode: true });
+  installInterstitialAd();
+
+  assert.equal(await ad.tryShowOpenInterstitial(cst('2026-09-08 09:00'), { force: true }), false);
+});
+
+test('interstitialState：返回启用/冷却/时段状态', () => {
+  installApp({ config: { ad_interstitial: 'adunit-i1' } });
+
+  const before = ad.interstitialState(cst('2026-09-08 09:00'));
+  assert.equal(before.enabled, true);
+  assert.equal(before.slot, 0);
+  assert.equal(before.slotShown, false);
+  assert.equal(before.cooldownRemain, 0);
+
+  // 展示后：时段标记 + 冷却倒计时
+  const created = installInterstitialAd();
+  const p = ad.tryShowOpenInterstitial(cst('2026-09-08 09:00'));
+  created[0]._cbs.load.forEach((fn) => fn());
+  created[0]._cbs.close.forEach((fn) => fn());
+  return p.then(() => {
+    const after = ad.interstitialState(cst('2026-09-08 09:30'));
+    assert.equal(after.slotShown, true);
+    assert.equal(after.cooldownRemain > 0, true);
+    const expired = ad.interstitialState(cst('2026-09-08 12:01'));
+    assert.equal(expired.cooldownRemain, 0, '满 3 小时冷却归零');
+    assert.equal(expired.slot, 1, '12 点后进入下午时段');
+    assert.equal(expired.slotShown, false, '下午时段未弹');
+  });
+});

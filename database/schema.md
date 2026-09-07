@@ -207,6 +207,7 @@
 | `ad_banner_home` | string | 流量主 Banner 广告位 ID（adunit- 前缀）。**空 = 未启用**，前端不渲染。开通流量主后填入即生效 |
 | `ad_video` | string | 激励视频广告位 ID（adunit- 前缀）。空 = 未启用。utils/ad.js 封装 showVideoAd()，供 V1.1「看广告解锁 AI 出题」等场景使用 |
 | `ad_interstitial` | string | 插屏广告位 ID（adunit- 前缀）。空 = 未启用。开启时（onShow）自动触发，3 小时全局冷却 + 上午（04:00–12:00）/下午（12:00–18:00）/晚上（18:00–次日04:00）各最多 1 次，全天 ≤3 次，频控记在用户本地 |
+| `debug_mode` | boolean | **调试面板开关**。true 时「我的」页底部显示调试面板（模拟强更/弹插屏/播激励视频/拉订阅授权等）。仅开发期使用，**提审前必须置 false**；双保险：audit_mode=true 时面板也会被 canShow 强制隐藏 |
 
 > `audit_mode` 是提审救命开关，V1 一定要做进去。没有它，每次提审都要改代码重新发版。
 >

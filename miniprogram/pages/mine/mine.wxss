@@ -97,3 +97,57 @@
   color: var(--text-3);
   font-size: 32rpx;
 }
+
+/* ---------- 调试面板（config.debug_mode 控制，正式用户不可见） ---------- */
+.debug {
+  margin-top: var(--space-lg);
+  padding: var(--space-md);
+  border: 1rpx dashed var(--warning);
+  border-radius: var(--radius);
+}
+
+.debug-head {
+  font-size: 26rpx;
+  font-weight: 600;
+  color: var(--warning);
+  margin-bottom: var(--space-sm);
+}
+
+.debug-row {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-sm);
+  padding: 8rpx 0;
+  font-size: 24rpx;
+}
+
+.debug-k {
+  color: var(--text-3);
+  flex-shrink: 0;
+}
+
+.debug-v {
+  color: var(--text-1);
+  text-align: right;
+  word-break: break-all;
+}
+
+.debug-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16rpx;
+  margin-top: var(--space-md);
+}
+
+.debug-btn {
+  padding: 12rpx 24rpx;
+  font-size: 24rpx;
+  color: var(--text-1);
+  background: var(--bg);
+  border: 1rpx solid var(--line);
+  border-radius: var(--radius);
+}
+
+.debug-btn-hover {
+  opacity: 0.6;
+}

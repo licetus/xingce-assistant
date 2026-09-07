@@ -146,19 +146,23 @@ function todayStr(now = Date.now()) {
  * - 插屏实例展示后即失效，每次都新建；加载失败/无填充静默放弃
  *
  * @param {number} now 当前时间戳（测试注入用）
+ * @param {object} [opts] opts.force=true 跳过冷却与时段频控（调试面板用），启用/审核门禁仍然生效
  * @returns {Promise<boolean>} true = 本次实际展示了
  */
-function tryShowOpenInterstitial(now = Date.now()) {
+function tryShowOpenInterstitial(now = Date.now(), opts = {}) {
   const id = interstitialId();
   if (!id) return Promise.resolve(false);
 
-  // 冷却：3 小时内弹过就跳过（不区分时段，防高频打扰——插屏审核红线）
-  const last = cache.get(ILAST_KEY, 0);
-  if (now - last < ILAST_COOLDOWN) return Promise.resolve(false);
-
-  // 频控：业务日 + 当前时段已展示过则跳过（key 含业务日，04 点翻新自然失效）
   const slotKey = ISLOT_PREFIX + slotDayStr(now) + '_' + currentSlot(now);
-  if (cache.get(slotKey, null)) return Promise.resolve(false);
+
+  if (!opts.force) {
+    // 冷却：3 小时内弹过就跳过（不区分时段，防高频打扰——插屏审核红线）
+    const last = cache.get(ILAST_KEY, 0);
+    if (now - last < ILAST_COOLDOWN) return Promise.resolve(false);
+
+    // 频控：业务日 + 当前时段已展示过则跳过（key 含业务日，04 点翻新自然失效）
+    if (cache.get(slotKey, null)) return Promise.resolve(false);
+  }
 
   return new Promise((resolve) => {
     if (typeof wx === 'undefined' || !wx.createInterstitialAd) {
@@ -195,12 +199,31 @@ function tryShowOpenInterstitial(now = Date.now()) {
   });
 }
 
+/**
+ * 插屏当前频控状态（调试面板展示用）
+ * @returns {{enabled:boolean, id:string, cooldownRemain:number, slot:number, slotShown:boolean}}
+ */
+function interstitialState(now = Date.now()) {
+  const id = interstitialId();
+  const last = cache.get(ILAST_KEY, 0);
+  const slot = currentSlot(now);
+  const slotShown = !!cache.get(ISLOT_PREFIX + slotDayStr(now) + '_' + slot, null);
+  return {
+    enabled: !!id,
+    id,
+    cooldownRemain: Math.max(0, ILAST_COOLDOWN - (now - last)),
+    slot,
+    slotShown
+  };
+}
+
 module.exports = {
   normalizeAdUnitId,
   bannerId,
   getVideoAd,
   showVideoAd,
   interstitialId,
+  interstitialState,
   currentSlot,
   todayStr,
   slotDayStr,

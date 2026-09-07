@@ -104,14 +104,16 @@ function silentUpdate() {
  *   config.min_version    低于此版本 → 强制更新（阻断）
  *   config.latest_version 低于此版本 → 柔性提示（每天最多一次）
  *   config.update_note    更新说明文案
+ * @param {string} [debugVersion] 调试用：显式传入模拟版本号时绕过 release 守卫
+ *   与柔性提示的当日缓存（调试面板「模拟旧版本」按钮用），正式调用不传
  */
-function checkVersion(config = {}) {
+function checkVersion(config = {}, debugVersion = '') {
   const { version, envVersion } = getAccountInfo();
 
   // 开发版和体验版没有正式版本号，跳过校验，否则本地调试会被自己的弹窗挡住
-  if (envVersion !== 'release') return;
+  if (!debugVersion && envVersion !== 'release') return;
 
-  const current = version || '0.0.0';
+  const current = debugVersion || version || '0.0.0';
   const minVersion = config.min_version;
   const latestVersion = config.latest_version;
 
@@ -121,9 +123,9 @@ function checkVersion(config = {}) {
     return;
   }
 
-  // 柔性提示：每天最多打扰一次
+  // 柔性提示：每天最多打扰一次（调试时绕过当日缓存）
   if (latestVersion && compareVersion(current, latestVersion) < 0) {
-    const tipped = cache.get(SOFT_TIP_KEY, '');
+    const tipped = debugVersion ? '' : cache.get(SOFT_TIP_KEY, '');
     if (tipped !== latestVersion) {
       cache.set(SOFT_TIP_KEY, latestVersion, 24 * cache.HOUR);
       softUpdate(latestVersion, config.update_note);

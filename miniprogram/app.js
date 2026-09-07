@@ -132,7 +132,7 @@ App({
   /** 审核模式下隐藏排行榜、邀请奖励、广告等敏感入口，提审时云端改配置即可，不用重新发版 */
   canShow(key) {
     if (!this.globalData.isAuditMode) return true;
-    const blocked = ['rank', 'invite', 'reward', 'ad'];
+    const blocked = ['rank', 'invite', 'reward', 'ad', 'debug'];
     return blocked.indexOf(key) === -1;
   },
 

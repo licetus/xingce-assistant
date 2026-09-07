@@ -1,8 +1,19 @@
 const { getStats, updateProfile } = require('../../services/user');
+const { requestCheckinSubscribe } = require('../../services/user');
 const { calendar } = require('../../services/checkin');
 const fmt = require('../../utils/format');
 const store = require('../../utils/store');
 const privacy = require('../../utils/privacy');
+const ad = require('../../utils/ad');
+const update = require('../../utils/update');
+
+const SLOT_NAMES = ['上午', '下午', '晚上'];
+
+function fmtCooldown(ms) {
+  if (ms <= 0) return '无';
+  const m = Math.ceil(ms / 60000);
+  return m >= 60 ? Math.floor(m / 60) + 'h' + (m % 60) + 'm' : m + 'm';
+}
 
 Page({
   data: {
@@ -14,7 +25,9 @@ Page({
     totalDays: 0,
     wrongCount: 0,
     modules: [],
-    needAuth: false
+    needAuth: false,
+    debugMode: false,
+    debugInfo: {}
   },
 
   onLoad() {
@@ -53,6 +66,15 @@ Page({
         wrongCount: (stats && stats.wrongCount) || 0,
         modules
       });
+
+      // 调试面板：config.debug_mode 热开关控制显隐，audit_mode 下强制隐藏
+      const app = getApp();
+      const cfg = app.globalData.config || {};
+      if (app.canShow('debug') && cfg.debug_mode === true) {
+        this.setData({ debugMode: true });
+        this._refreshDebug();
+      }
+
       this._loaded = true;
     });
   },
@@ -94,5 +116,68 @@ Page({
       title: '行测小助手，五大模块免费刷',
       path: `/pages/index/index?inv=${getApp().globalData.openid}`
     };
+  },
+
+  // ---------- 调试面板（config.debug_mode=true 且非审核模式时显示） ----------
+
+  _refreshDebug() {
+    const app = getApp();
+    const cfg = app.globalData.config || {};
+    const acc = update.getAccountInfo();
+    const st = ad.interstitialState();
+    const slotName = SLOT_NAMES[st.slot] || String(st.slot);
+
+    this.setData({
+      debugInfo: {
+        version: acc.version || '(未发布)',
+        envVersion: acc.envVersion,
+        auditMode: !!app.globalData.isAuditMode,
+        banner: ad.bannerId() || '未配置',
+        video: ad.bannerId('ad_video') || '未配置',
+        tmpl: cfg.checkin_tmpl_id ? '已配置' : '未配置',
+        interstitial: st.enabled
+          ? `当前时段：${slotName}${st.slotShown ? '（已弹）' : '（未弹）'} · 冷却剩 ${fmtCooldown(st.cooldownRemain)}`
+          : '未配置',
+        configKeys: Object.keys(cfg).join('、')
+      }
+    });
+  },
+
+  /** 模拟旧版本触发强更弹窗（min_version=1.0.0，0.0.1 必命中） */
+  onDebugForceCheck() {
+    update.checkVersion(getApp().globalData.config || {}, '0.0.1');
+  },
+
+  /** 模拟次新版本触发柔性更新提示（绕过当日只弹一次的缓存） */
+  onDebugSoftCheck() {
+    update.checkVersion(getApp().globalData.config || {}, '0.0.2');
+  },
+
+  /** 立即弹插屏，忽略冷却与时段频控（启用门禁仍生效） */
+  async onDebugInterstitial() {
+    const shown = await ad.tryShowOpenInterstitial(Date.now(), { force: true });
+    wx.showToast({ title: shown ? '已拉起插屏' : '未启用或拉取失败', icon: 'none' });
+    this._refreshDebug();
+  },
+
+  /** 播放一次激励视频 */
+  async onDebugVideo() {
+    const ended = await ad.showVideoAd();
+    wx.showToast({ title: ended ? '完整观看' : '未看完/未播放', icon: 'none' });
+  },
+
+  /** 手动拉起打卡订阅授权 */
+  async onDebugSubscribe() {
+    const tmplId = (getApp().globalData.config || {}).checkin_tmpl_id;
+    if (!tmplId) {
+      wx.showToast({ title: 'config 未配置 checkin_tmpl_id', icon: 'none' });
+      return;
+    }
+    const ok = await requestCheckinSubscribe(tmplId);
+    wx.showToast({ title: ok ? '已同意订阅' : '未同意/失败', icon: 'none' });
+  },
+
+  onDebugPrivacy() {
+    privacy.openContract();
   }
 });

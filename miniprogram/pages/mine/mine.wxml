@@ -43,4 +43,43 @@
     <text>用户隐私保护指引</text>
     <text class="arrow">›</text>
   </view>
+
+  <!-- 调试面板：config.debug_mode=true 时显示，audit_mode 下强制隐藏 -->
+  <view class="debug" wx:if="{{debugMode}}">
+    <view class="debug-head">🛠 调试模式（config.debug_mode）</view>
+
+    <view class="debug-row">
+      <text class="debug-k">版本 / 环境</text>
+      <text class="debug-v">{{debugInfo.version}} · {{debugInfo.envVersion}}</text>
+    </view>
+    <view class="debug-row">
+      <text class="debug-k">audit_mode</text>
+      <text class="debug-v">{{debugInfo.auditMode ? '开（排行榜/广告/本面板已隐藏）' : '关'}}</text>
+    </view>
+    <view class="debug-row">
+      <text class="debug-k">Banner / 激励视频</text>
+      <text class="debug-v">{{debugInfo.banner}} / {{debugInfo.video}}</text>
+    </view>
+    <view class="debug-row">
+      <text class="debug-k">插屏状态</text>
+      <text class="debug-v">{{debugInfo.interstitial}}</text>
+    </view>
+    <view class="debug-row">
+      <text class="debug-k">订阅模板</text>
+      <text class="debug-v">{{debugInfo.tmpl}}</text>
+    </view>
+    <view class="debug-row">
+      <text class="debug-k">config 字段</text>
+      <text class="debug-v">{{debugInfo.configKeys}}</text>
+    </view>
+
+    <view class="debug-actions">
+      <view class="debug-btn" hover-class="debug-btn-hover" bindtap="onDebugForceCheck">模拟旧版本强更</view>
+      <view class="debug-btn" hover-class="debug-btn-hover" bindtap="onDebugSoftCheck">柔性更新提示</view>
+      <view class="debug-btn" hover-class="debug-btn-hover" bindtap="onDebugInterstitial">立即弹插屏（忽略频控）</view>
+      <view class="debug-btn" hover-class="debug-btn-hover" bindtap="onDebugVideo">播放激励视频</view>
+      <view class="debug-btn" hover-class="debug-btn-hover" bindtap="onDebugSubscribe">拉起订阅授权</view>
+      <view class="debug-btn" hover-class="debug-btn-hover" bindtap="onDebugPrivacy">打开隐私协议</view>
+    </view>
+  </view>
 </view>
