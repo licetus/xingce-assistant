@@ -1,6 +1,7 @@
 const { call } = require('../../../utils/cloud');
 const fmt = require('../../../utils/format');
 const track = require('../../../utils/track');
+const privacy = require('../../../utils/privacy');
 
 const W = 300;
 const H = 460;
@@ -161,6 +162,10 @@ Page({
 
   async onSave() {
     if (!this.data.posterPath) return;
+    // 相册属于隐私接口：先确保《用户隐私保护指引》已授权（基础库 2.32.3+），
+    // 用户拒绝则静默中止；scope 授权被拒后的去设置页引导在下方 catch 处理
+    const authorized = await privacy.ensure();
+    if (!authorized) return;
     try {
       await wx.saveImageToPhotosAlbum({ filePath: this.data.posterPath });
       track.push('poster_saved');

@@ -2,6 +2,7 @@ const { getStats, updateProfile } = require('../../services/user');
 const { calendar } = require('../../services/checkin');
 const fmt = require('../../utils/format');
 const store = require('../../utils/store');
+const privacy = require('../../utils/privacy');
 
 Page({
   data: {
@@ -27,12 +28,9 @@ Page({
   async _load() {
     getApp().onAppReady(async () => {
       // 隐私协议未授权时不拉用户资料，避免触发审核问题
-      try {
-        const setting = await wx.getPrivacySetting({});
-        this.setData({ needAuth: setting && setting.needAuthorization });
-      } catch (e) {
-        this.setData({ needAuth: false });
-      }
+      // （低版本基础库没有隐私 API，getSetting 内部会降级为「无需授权」）
+      const setting = await privacy.getSetting();
+      this.setData({ needAuth: setting.needAuthorization });
 
       const [stats, cal] = await Promise.all([
         getStats().catch(() => null),
