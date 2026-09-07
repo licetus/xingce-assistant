@@ -1,5 +1,5 @@
 .result {
-  background: #fff;
+  background: var(--card);
   min-height: 100vh;
 }
 

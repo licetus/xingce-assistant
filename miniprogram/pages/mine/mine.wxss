@@ -1,5 +1,5 @@
 .profile {
-  background: #fff;
+  background: var(--card);
   padding: 60rpx 32rpx 48rpx;
   text-align: center;
 }
