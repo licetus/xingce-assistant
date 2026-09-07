@@ -202,3 +202,43 @@ test('未知 action 返回 404', async () => {
   const res = await cf.main({ action: 'nonsense' });
   assert.equal(res.code, 404);
 });
+
+// ---------- 题目来源标识（真题 / AI 生成） ----------
+
+test('draw：下发 source 字段供前端展示来源标签', async () => {
+  const cf = loadCf('question');
+  const res = await cf.main({ action: 'draw', payload: { module: '常识判断', count: 6 } });
+
+  assert.equal(res.code, 0);
+  res.data.list.forEach((item) => {
+    assert.equal(item.source, 'real', '真题题源应标记 real');
+  });
+});
+
+test('draw：AI 生成题的 source 原样下发（前端挂「AI 生成」标签）', async () => {
+  mockSdk.__mock.resetDb({
+    questions: [{ ...require('../helpers/fixtures.js').seedQuestions()[0], qid: 9001, source: 'ai' }]
+  });
+  const cf = loadCf('question');
+  const res = await cf.main({ action: 'draw', payload: { module: '常识判断', count: 5 } });
+
+  assert.equal(res.code, 0);
+  const ai = res.data.list.find((x) => x.qid === 9001);
+  assert.ok(ai, 'AI 题应被抽中');
+  assert.equal(ai.source, 'ai');
+});
+
+test('detail：返回 source；旧数据缺 source 时兜底为 real', async () => {
+  mockSdk.__mock.resetDb({
+    questions: [{ ...require('../helpers/fixtures.js').seedQuestions()[0], qid: 9002, source: undefined }]
+  });
+  delete mockSdk.__mock.raw('questions')[0].source;
+
+  const cf = loadCf('question');
+  const res = await cf.main({ action: 'detail', payload: { qid: 9002 } });
+
+  assert.equal(res.code, 0);
+  assert.equal(res.data.source, 'real', '缺失 source 应兜底 real');
+  assert.equal('answer' in res.data, false);
+  assert.equal('analysis' in res.data, false);
+});

@@ -22,6 +22,7 @@ function q(qid, module, subtype, opts = {}) {
     tags: opts.tags || [],
     materialId: opts.materialId || null,
     images: opts.images || [],
+    source: opts.source !== undefined ? opts.source : 'real',
     status: opts.status !== undefined ? opts.status : 1,
     stat: { done: 0, correct: 0 }
   };

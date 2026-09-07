@@ -67,7 +67,8 @@
   tags:     ['增长率', '基期量'],
   materialId: null,                  // type=material 时指向 qgroups.gid
   images:   [],                      // 云存储 fileID
-  source:   'self',                  // 版权标记，勿改
+  source:   'real',                  // 来源标识：'real' 历年真题 | 'ai' AI生成(V1.1) | 'self' 自研改编。
+                                     // 客户端题目卡片按此展示来源标签，必须如实标注
   status:   1,                       // 1 上架 / 0 下架
   stat:     { done: 0, correct: 0 }, // 全局作答统计，用于难度校准
   createdAt: Date
@@ -75,6 +76,7 @@
 ```
 
 **版权红线**：`source` 字段必须如实标注。直接搬运历年真题原文和官方解析，是教育类小程序被投诉下架的头号原因。自研或深度改编。
+**来源标识合规**：题目必须向用户明示来源（真题 / AI 生成）。V1.1 引入 AI 生成功能后，AI 题一律 `source:'ai'`，前端自动挂「AI 生成」标签——AI 生成内容不标识属于平台审核红线。
 
 ---
 

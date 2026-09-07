@@ -32,6 +32,12 @@
   margin-left: 12rpx;
 }
 
+/* AI 生成题标签（V1.1 上线生成功能后出现），与真题标签做视觉区分 */
+.tag-ai {
+  background: var(--warning);
+  color: var(--text-inverse);
+}
+
 .qc-stem {
   font-size: 30rpx;
   line-height: 1.7;

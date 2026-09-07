@@ -2,6 +2,8 @@
   <view class="qc-head">
     <text class="qc-index">{{index + 1}}<text class="qc-total">/{{total}}</text></text>
     <view class="qc-tags">
+      <text class="tag tag-ai" wx:if="{{q.source === 'ai'}}">AI 生成</text>
+      <text class="tag" wx:else>真题</text>
       <text class="tag" wx:if="{{q.subtype}}">{{q.subtype}}</text>
       <text class="qc-diff">难度 {{q.difficulty}}</text>
     </view>

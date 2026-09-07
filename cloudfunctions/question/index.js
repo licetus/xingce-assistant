@@ -41,7 +41,10 @@ function sanitize(q) {
     difficulty: q.difficulty,
     tags: q.tags,
     materialId: q.materialId,
-    images: q.images
+    images: q.images,
+    // 来源标识：'real' 历年真题 / 'ai' AI生成（V1.1）/ 'self' 自研改编。
+    // 用户可见的来源标签依据此字段展示，必须如实下发
+    source: q.source || 'real'
   };
 }
 
@@ -133,7 +136,7 @@ async function handleDraw(payload) {
     .collection('questions')
     .where(where)
     .field({ qid: true, module: true, subtype: true, type: true, stem: true, options: true,
-             difficulty: true, tags: true, materialId: true, images: true })
+             difficulty: true, tags: true, materialId: true, images: true, source: true })
     .limit(1000)
     .get();
 
