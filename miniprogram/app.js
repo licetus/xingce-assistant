@@ -136,7 +136,7 @@ App({
     return blocked.indexOf(key) === -1;
   },
 
-  /** 开启时插屏广告（每日每时段最多 1 次，12 点/18 点分界）；config 未就绪或异常时静默 */
+  /** 开启时插屏广告（每日每时段最多 1 次，04/12/18 点分界）；config 未就绪或异常时静默 */
   _maybeShowOpenInterstitial() {
     if (!this.globalData.config) return;
     require('./utils/ad')

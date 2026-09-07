@@ -192,19 +192,28 @@ function cst(ts) {
   return new Date(ts.replace(' ', 'T') + '+08:00').getTime();
 }
 
-test('currentSlot：12 点 / 18 点分界正确', () => {
-  assert.equal(ad.currentSlot(cst('2026-09-08 00:00')), 0);
+test('currentSlot：4 点 / 12 点 / 18 点分界正确（凌晨 0~4 点属晚上）', () => {
+  assert.equal(ad.currentSlot(cst('2026-09-08 03:59')), 2, '凌晨 4 点前仍属前一晚');
+  assert.equal(ad.currentSlot(cst('2026-09-08 04:00')), 0);
   assert.equal(ad.currentSlot(cst('2026-09-08 11:59')), 0);
   assert.equal(ad.currentSlot(cst('2026-09-08 12:00')), 1);
   assert.equal(ad.currentSlot(cst('2026-09-08 17:59')), 1);
   assert.equal(ad.currentSlot(cst('2026-09-08 18:00')), 2);
   assert.equal(ad.currentSlot(cst('2026-09-08 23:59')), 2);
+  assert.equal(ad.currentSlot(cst('2026-09-09 00:30')), 2, '跨午夜仍属晚上时段');
 });
 
 test('todayStr：东八区跨天正确（UTC 17 点已是次日）', () => {
   // UTC 2026-09-08T17:00Z = 东八 2026-09-09 01:00
   assert.equal(ad.todayStr(Date.parse('2026-09-08T17:00:00Z')), '2026-09-09');
   assert.equal(ad.todayStr(cst('2026-09-08 23:59')), '2026-09-08');
+});
+
+test('slotDayStr：业务日以 04:00 为界（凌晨属前一业务日）', () => {
+  assert.equal(ad.slotDayStr(cst('2026-09-08 23:00')), '2026-09-08');
+  assert.equal(ad.slotDayStr(cst('2026-09-09 01:30')), '2026-09-08', '凌晨 1 点半仍属 8 号的晚上时段');
+  assert.equal(ad.slotDayStr(cst('2026-09-09 03:59')), '2026-09-08');
+  assert.equal(ad.slotDayStr(cst('2026-09-09 04:00')), '2026-09-09', '4 点整翻新为 9 号');
 });
 
 test('tryShowOpenInterstitial：未配置 / 审核模式 → 不弹', async () => {
@@ -244,14 +253,15 @@ test('tryShowOpenInterstitial：跨时段可再弹（一天最多三次由三时
     return p;
   };
 
-  assert.equal(await play(cst('2026-09-08 08:00')), true);  // 上午
-  assert.equal(await play(cst('2026-09-08 14:00')), true);  // 下午
-  assert.equal(await play(cst('2026-09-08 20:00')), true);  // 晚上
-  assert.equal(await play(cst('2026-09-08 21:00')), false); // 晚上第二次被拦
-  assert.equal(created.length, 3, '全天恰好三次');
+  assert.equal(await play(cst('2026-09-08 08:00')), true);   // 上午（04~12 点）
+  assert.equal(await play(cst('2026-09-08 14:00')), true);   // 下午（12~18 点）
+  assert.equal(await play(cst('2026-09-08 20:00')), true);   // 晚上（18 点~次日 4 点）
+  assert.equal(await play(cst('2026-09-08 21:00')), false);  // 晚上第二次被拦
+  assert.equal(await play(cst('2026-09-09 01:30')), false, '跨午夜凌晨仍属同一晚上时段');
+  assert.equal(created.length, 3, '一个业务日恰好三次');
 });
 
-test('tryShowOpenInterstitial：跨天频控自动失效', async () => {
+test('tryShowOpenInterstitial：凌晨 4 点业务日翻新，频控失效', async () => {
   installApp({ config: { ad_interstitial: 'adunit-i1' } });
   const created = installInterstitialAd();
 
@@ -262,8 +272,9 @@ test('tryShowOpenInterstitial：跨天频控自动失效', async () => {
     return p;
   };
 
-  assert.equal(await play(cst('2026-09-08 09:00')), true);
-  assert.equal(await play(cst('2026-09-09 09:00')), true, '次日同时段应重新可弹');
+  assert.equal(await play(cst('2026-09-08 20:00')), true, '8 号晚上');
+  assert.equal(await play(cst('2026-09-09 03:00')), false, '次日凌晨 3 点仍属 8 号晚上');
+  assert.equal(await play(cst('2026-09-09 04:30')), true, '凌晨 4 点半翻新，新业务日重新可弹');
 });
 
 test('tryShowOpenInterstitial：加载失败（show 报错）不记频控', async () => {

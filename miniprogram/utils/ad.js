@@ -111,12 +111,21 @@ function interstitialId() {
 
 /**
  * 当前时段编号（东八区）：
- * 0 = 00:00~12:00（上午）  1 = 12:00~18:00（下午）  2 = 18:00~24:00（晚上）
- * 每日三次插屏以 12 点 / 18 点为分界线，每时段最多展示 1 次
+ * 0 = 04:00~12:00（上午）  1 = 12:00~18:00（下午）  2 = 18:00~次日04:00（晚上）
+ * 每日三次插屏以 4 点 / 12 点 / 18 点为分界线，每时段最多展示 1 次
  */
 function currentSlot(now = Date.now()) {
   const h = new Date(now + 8 * 60 * 60 * 1000).getUTCHours();
-  return h < 12 ? 0 : h < 18 ? 1 : 2;
+  return h >= 4 && h < 12 ? 0 : h >= 12 && h < 18 ? 1 : 2;
+}
+
+/**
+ * 「业务日」日期串（东八区）：凌晨 0~4 点属于前一天的晚上时段，
+ * 所以业务日以 04:00 为界——把时间戳回拨 4 小时再取东八区日期。
+ * 这样 23:50 与次日 01:30 同属一个晚上时段，共用同一把频控锁。
+ */
+function slotDayStr(now = Date.now()) {
+  return todayStr(now - 4 * 60 * 60 * 1000);
 }
 
 /** 东八区日期串（ISO 截取法：先加 8 小时再取 UTC 日期，与 buildGreeting 同款手法） */
@@ -139,8 +148,8 @@ function tryShowOpenInterstitial(now = Date.now()) {
   const id = interstitialId();
   if (!id) return Promise.resolve(false);
 
-  // 频控：当天 + 当前时段已展示过则跳过（key 含日期，跨天自然失效）
-  const slotKey = ISLOT_PREFIX + todayStr(now) + '_' + currentSlot(now);
+  // 频控：业务日 + 当前时段已展示过则跳过（key 含业务日，04 点翻新自然失效）
+  const slotKey = ISLOT_PREFIX + slotDayStr(now) + '_' + currentSlot(now);
   if (cache.get(slotKey, null)) return Promise.resolve(false);
 
   return new Promise((resolve) => {
@@ -183,6 +192,7 @@ module.exports = {
   interstitialId,
   currentSlot,
   todayStr,
+  slotDayStr,
   tryShowOpenInterstitial,
   _reset
 };
