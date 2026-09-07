@@ -286,3 +286,43 @@ test('tryShowOpenInterstitial：加载失败（show 报错）不记频控', asyn
   // 失败不消耗频控，紧接着再试仍会尝试
   assert.equal(await ad.tryShowOpenInterstitial(now), false);
 });
+
+test('tryShowOpenInterstitial：3 小时全局冷却，跨时段也不弹', async () => {
+  installApp({ config: { ad_interstitial: 'adunit-i1' } });
+  const created = installInterstitialAd();
+
+  const play = async (ts) => {
+    const p = ad.tryShowOpenInterstitial(ts);
+    created[created.length - 1]._cbs.load.forEach((fn) => fn());
+    created[created.length - 1]._cbs.close.forEach((fn) => fn());
+    return p;
+  };
+
+  assert.equal(await play(cst('2026-09-08 11:00')), true, '上午展示');
+
+  // 12:30 已进入下午时段（时段频控放行），但距上次仅 1.5h → 冷却拦截
+  assert.equal(await play(cst('2026-09-08 12:30')), false, '3 小时冷却期内');
+  assert.equal(created.length, 1);
+
+  // 14:30 距上次 3.5h，下午时段未弹过 → 放行
+  assert.equal(await play(cst('2026-09-08 14:30')), true, '冷却期满且新时段');
+  assert.equal(created.length, 2);
+});
+
+test('tryShowOpenInterstitial：恰好 3 小时按冷却内处理，3h+1min 放行', async () => {
+  installApp({ config: { ad_interstitial: 'adunit-i1' } });
+  const created = installInterstitialAd();
+
+  const play = async (ts) => {
+    const p = ad.tryShowOpenInterstitial(ts);
+    created[created.length - 1]._cbs.load.forEach((fn) => fn());
+    created[created.length - 1]._cbs.close.forEach((fn) => fn());
+    return p;
+  };
+
+  assert.equal(await play(cst('2026-09-08 09:00')), true, '上午展示');
+  // 恰好 3 小时整（12:00）：满 3h 视为冷却期满，且下午时段未弹过 → 放行
+  // （「3 小时内不弹」的严格内含边界：冷却判断为 now-last < 3h）
+  assert.equal(await play(cst('2026-09-08 12:00')), true, '恰好满 3h 放行');
+  assert.equal(created.length, 2);
+});

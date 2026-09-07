@@ -103,6 +103,9 @@ function _reset() {
 const cache = require('./cache');
 
 const ISLOT_PREFIX = 'ad_islot_';
+const ILAST_KEY = 'ad_ilast';
+/** 全局冷却：展示后 3 小时内不再弹第二次（跨时段也生效，与时段频控叠加） */
+const ILAST_COOLDOWN = 3 * cache.HOUR;
 
 /** 插屏广告位 ID（config.ad_interstitial，空 = 未启用） */
 function interstitialId() {
@@ -138,6 +141,7 @@ function todayStr(now = Date.now()) {
  *
  * 触发规则：
  * - config.ad_interstitial 为空 / 审核模式 → 不弹
+ * - 3 小时内已展示过 → 不弹（全局冷却，跨时段生效）
  * - 当前时段（上午/下午/晚上）已弹过 → 不弹（全天最多 3 次，频控记在本地 storage）
  * - 插屏实例展示后即失效，每次都新建；加载失败/无填充静默放弃
  *
@@ -147,6 +151,10 @@ function todayStr(now = Date.now()) {
 function tryShowOpenInterstitial(now = Date.now()) {
   const id = interstitialId();
   if (!id) return Promise.resolve(false);
+
+  // 冷却：3 小时内弹过就跳过（不区分时段，防高频打扰——插屏审核红线）
+  const last = cache.get(ILAST_KEY, 0);
+  if (now - last < ILAST_COOLDOWN) return Promise.resolve(false);
 
   // 频控：业务日 + 当前时段已展示过则跳过（key 含业务日，04 点翻新自然失效）
   const slotKey = ISLOT_PREFIX + slotDayStr(now) + '_' + currentSlot(now);
@@ -161,7 +169,10 @@ function tryShowOpenInterstitial(now = Date.now()) {
     const finish = (shown) => {
       if (settled) return;
       settled = true;
-      if (shown) cache.set(slotKey, 1, 24 * cache.HOUR);
+      if (shown) {
+        cache.set(slotKey, 1, 24 * cache.HOUR);
+        cache.set(ILAST_KEY, now, ILAST_COOLDOWN);
+      }
       resolve(shown);
     };
 
