@@ -57,6 +57,8 @@ App({
     if (options && options.scene) {
       this._captureScene(options);
     }
+    // 开启时插屏：每次回到前台都检查；时段频控在 ad 模块内（上午/下午/晚上各最多 1 次）
+    this._maybeShowOpenInterstitial();
   },
 
   /** 解析分享/扫码来源，做增长归因 */
@@ -82,6 +84,9 @@ App({
       this._resolveReady(true);
       this._notifyReady();
       this._watchNetwork();
+
+      // 冷启动时首次 onShow 早于 config 就绪，这里补一次检查，确保冷启动也能弹插屏
+      this._maybeShowOpenInterstitial();
 
       // 延后一帧再校验版本：强制更新弹窗若抢在首页渲染前弹出，会被页面覆盖导致白屏后弹窗
       setTimeout(() => {
@@ -129,5 +134,13 @@ App({
     if (!this.globalData.isAuditMode) return true;
     const blocked = ['rank', 'invite', 'reward', 'ad'];
     return blocked.indexOf(key) === -1;
+  },
+
+  /** 开启时插屏广告（每日每时段最多 1 次，12 点/18 点分界）；config 未就绪或异常时静默 */
+  _maybeShowOpenInterstitial() {
+    if (!this.globalData.config) return;
+    require('./utils/ad')
+      .tryShowOpenInterstitial()
+      .catch(() => {});
   }
 });

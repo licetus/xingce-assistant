@@ -98,4 +98,91 @@ function _reset() {
   _videoAdId = null;
 }
 
-module.exports = { normalizeAdUnitId, bannerId, getVideoAd, showVideoAd, _reset };
+// ---------- 插屏广告（开启时展示，每日每时段最多 1 次） ----------
+
+const cache = require('./cache');
+
+const ISLOT_PREFIX = 'ad_islot_';
+
+/** 插屏广告位 ID（config.ad_interstitial，空 = 未启用） */
+function interstitialId() {
+  return bannerId('ad_interstitial');
+}
+
+/**
+ * 当前时段编号（东八区）：
+ * 0 = 00:00~12:00（上午）  1 = 12:00~18:00（下午）  2 = 18:00~24:00（晚上）
+ * 每日三次插屏以 12 点 / 18 点为分界线，每时段最多展示 1 次
+ */
+function currentSlot(now = Date.now()) {
+  const h = new Date(now + 8 * 60 * 60 * 1000).getUTCHours();
+  return h < 12 ? 0 : h < 18 ? 1 : 2;
+}
+
+/** 东八区日期串（ISO 截取法：先加 8 小时再取 UTC 日期，与 buildGreeting 同款手法） */
+function todayStr(now = Date.now()) {
+  return new Date(now + 8 * 60 * 60 * 1000).toISOString().slice(0, 10);
+}
+
+/**
+ * 尝试展示「开启时」插屏广告（app.onShow 与 bootstrap 完成时调用）
+ *
+ * 触发规则：
+ * - config.ad_interstitial 为空 / 审核模式 → 不弹
+ * - 当前时段（上午/下午/晚上）已弹过 → 不弹（全天最多 3 次，频控记在本地 storage）
+ * - 插屏实例展示后即失效，每次都新建；加载失败/无填充静默放弃
+ *
+ * @param {number} now 当前时间戳（测试注入用）
+ * @returns {Promise<boolean>} true = 本次实际展示了
+ */
+function tryShowOpenInterstitial(now = Date.now()) {
+  const id = interstitialId();
+  if (!id) return Promise.resolve(false);
+
+  // 频控：当天 + 当前时段已展示过则跳过（key 含日期，跨天自然失效）
+  const slotKey = ISLOT_PREFIX + todayStr(now) + '_' + currentSlot(now);
+  if (cache.get(slotKey, null)) return Promise.resolve(false);
+
+  return new Promise((resolve) => {
+    if (typeof wx === 'undefined' || !wx.createInterstitialAd) {
+      return resolve(false);
+    }
+
+    let settled = false;
+    const finish = (shown) => {
+      if (settled) return;
+      settled = true;
+      if (shown) cache.set(slotKey, 1, 24 * cache.HOUR);
+      resolve(shown);
+    };
+
+    let ad;
+    try {
+      ad = wx.createInterstitialAd({ adUnitId: id });
+    } catch (err) {
+      return finish(false);
+    }
+
+    ad.onError(() => finish(false));
+    ad.onClose(() => finish(true));
+    // 官方语义：未加载完成时 show 会失败，等 onLoad 再拉起
+    ad.onLoad(() => {
+      ad.show().catch(() => finish(false));
+    });
+
+    // 兜底：8 秒仍未加载完成视为无填充，放弃（插屏正常加载是秒级）
+    setTimeout(() => finish(false), 8000);
+  });
+}
+
+module.exports = {
+  normalizeAdUnitId,
+  bannerId,
+  getVideoAd,
+  showVideoAd,
+  interstitialId,
+  currentSlot,
+  todayStr,
+  tryShowOpenInterstitial,
+  _reset
+};
