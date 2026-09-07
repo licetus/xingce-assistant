@@ -196,14 +196,16 @@
 
 | key | 类型 | 说明 |
 |---|---|---|
-| `audit_mode` | boolean | **审核模式**。置 true 时隐藏排行榜、邀请、奖励入口。提审前打开，通过后关掉 |
+| `audit_mode` | boolean | **审核模式**。置 true 时隐藏排行榜、邀请、奖励入口和**全部广告**。提审前打开，通过后关掉 |
 | `checkin_tmpl_id` | string | 打卡订阅消息模板 ID |
 | `checkin_tmpl_fields` | object | 打卡提醒模板字段映射 {date,streak}，默认 thing1/thing2 |
 | `share_text` | string | 分享文案，可随时换 |
 | `min_version` | string | **强制更新线**。低于此版本弹不可取消的弹窗阻断使用，用于严重 Bug 或不兼容变更 |
 | `latest_version` | string | 柔性更新提示。低于此版本弹一次性提示，用户可忽略，每天最多打扰一次 |
 | `update_note` | string | 更新说明文案，配合上面两个字段展示 |
-| `home_banner` | object | 首页 banner 配置 |
+| `home_banner` | object | 首页 banner 配置（运营位图片卡片，非流量主广告） |
+| `ad_banner_home` | string | 流量主 Banner 广告位 ID（adunit- 前缀）。**空 = 未启用**，前端不渲染。开通流量主后填入即生效 |
+| `ad_video` | string | 激励视频广告位 ID（adunit- 前缀）。空 = 未启用。utils/ad.js 封装 showVideoAd()，供 V1.1「看广告解锁 AI 出题」等场景使用 |
 
 > `audit_mode` 是提审救命开关，V1 一定要做进去。没有它，每次提审都要改代码重新发版。
 >

@@ -4,6 +4,7 @@ const cache = require('../../utils/cache');
 const store = require('../../utils/store');
 const track = require('../../utils/track');
 const fmt = require('../../utils/format');
+const ad = require('../../utils/ad');
 
 const HOME_CACHE_KEY = 'home-v2'; // v2: 新增 icon/avatarUrl 字段，弃用旧缓存
 
@@ -28,7 +29,8 @@ Page({
     todayChecked: false,
     wrongCount: 0,
     modules: [],
-    showRank: true
+    showRank: true,
+    adBannerId: ''
   },
 
   onLoad() {
@@ -39,6 +41,9 @@ Page({
     }
 
     this._load();
+    // 广告位 ID 来自云端 config：onLoad 时可能已就绪（二次进入），
+    // _load 里 app ready 后再刷一次兜底（冷启动 config 并行拉取中）
+    this.setData({ adBannerId: ad.bannerId() });
     store.on('wrongCount', (n) => this.setData({ wrongCount: n }));
     track.page('index');
   },
@@ -80,7 +85,8 @@ Page({
         todayChecked: !!(cal && cal.todayChecked),
         wrongCount: (stats && stats.wrongCount) || 0,
         modules,
-        showRank: app.canShow('rank')
+        showRank: app.canShow('rank'),
+        adBannerId: ad.bannerId()
       };
 
       this.setData(payload);
@@ -101,6 +107,11 @@ Page({
     track.push('tap_module', { module: '__random__' });
     // 不传 module，云函数从全部模块抽题
     wx.navigateTo({ url: '/pages/practice/practice?scene=practice' });
+  },
+
+  /** 广告加载失败（未开通流量主/无填充/网络异常）→ 隐藏容器，绝不打扰用户 */
+  onAdError() {
+    this.setData({ adBannerId: '' });
   },
 
   onTapMine() {

@@ -164,3 +164,9 @@
   color: var(--brand);
   margin-bottom: 4rpx;
 }
+
+/* ---------- 流量主 Banner 广告 ---------- */
+/* wx:if 已控制渲染，这里只管与卡片区的间距节奏 */
+.ad-slot {
+  margin-top: var(--space-md);
+}

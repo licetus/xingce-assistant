@@ -70,4 +70,13 @@
     </view>
   </view>
 
+  <!-- 流量主 Banner 广告：config 下发广告位 ID，未配置 / 审核模式不渲染；加载失败自动隐藏 -->
+  <view class="ad-slot" wx:if="{{adBannerId}}">
+    <ad
+      unit-id="{{adBannerId}}"
+      ad-intervals="60"
+      binderror="onAdError"
+    ></ad>
+  </view>
+
 </view>
