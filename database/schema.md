@@ -57,7 +57,13 @@
   _id:      'auto',
   qid:      10001,                   // 业务主键，Number，唯一索引
   module:   '资料分析',               // 五大模块之一
-  subtype:  '增长率计算',             // 二级考点
+  subtype:  '增长率计算',             // 二级考点。⚠️ 必须是短考点标签（卡片渲染成 pill，
+                                     // 且 CSS 有 max-width 截断兜底）；资料分析/判断推理的
+                                     // 材料原文必须并入 stem（材料 + 空行 + 题干），禁止存 subtype。
+                                     // 2026-09-08 修复：gkzhenti 导入曾把材料错映射到 subtype，
+                                     // 93 题已并入 stem；55 题材料正文缺失已下架 status=0 +
+                                     // tags「缺材料待补」，补回材料后恢复 status=1（清单见
+                                     // database/raw/offline-missing-material-2026-09-08.json）
   type:     'single',                // single | multi | material
   stem:     '题干文本',
   options:  [{ key: 'A', text: '' }],

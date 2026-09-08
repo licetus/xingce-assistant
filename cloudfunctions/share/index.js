@@ -22,24 +22,40 @@ async function handleQrcode(payload) {
   const scene = 'i' + OPENID;
 
   try {
-    const result = await cloud.openapi.wxacode.getUnlimited({
-      scene,
-      page,
-      width: 280,
-      autoColor: false,
-      lineColor: { r: 0, g: 102, b: 204 },
-      isHyaline: false
-    });
+    let result;
+    try {
+      result = await cloud.openapi.wxacode.getUnlimited({
+        scene,
+        page,
+        width: 280,
+        autoColor: false,
+        lineColor: { r: 0, g: 102, b: 204 },
+        isHyaline: false
+      });
+    } catch (e) {
+      // 41030 invalid page：小程序未正式发布时 page 参数会被微信拒绝。
+      // 回退空串（默认跳主页，与 pages/index/index 等价）；正式发布后走正常分支。
+      if (String(e.errCode || '') === '41030' || String(e.errMsg || '').indexOf('invalid page') >= 0) {
+        console.warn('[share] getUnlimited page rejected, fallback to empty page');
+        result = await cloud.openapi.wxacode.getUnlimited({
+          scene,
+          page: '',
+          width: 280,
+          autoColor: false,
+          lineColor: { r: 0, g: 102, b: 204 },
+          isHyaline: false
+        });
+      } else {
+        throw e;
+      }
+    }
 
     const hash = crypto.createHash('md5').update(scene + page).digest('hex').slice(0, 12);
     const cloudPath = `qrcode/${hash}.png`;
 
-    // 小程序码内容只与 openid 有关，重复生成直接复用已上传的文件，省存储也省调用
-    const exist = await cloud.getTempFileURL({ fileList: [cloudPath] }).catch(() => null);
-    if (exist && exist.fileList && exist.fileList[0] && exist.fileList[0].status === 0) {
-      return ok({ fileID: cloudPath, cached: true });
-    }
-
+    // 注意：这里必须每次重新 uploadFile 并返回 upload.fileID（完整 cloud:// ID）。
+    // 不能用相对路径 qrcode/xxx.png 当 fileID 返回——客户端 wx.cloud.getTempFileURL
+    // 只认完整 cloud:// 文件 ID，相对路径会导致海报图片加载失败。
     const upload = await cloud.uploadFile({
       cloudPath,
       fileContent: result.buffer

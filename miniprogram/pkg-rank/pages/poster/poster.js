@@ -37,7 +37,8 @@ Page({
       // 1. 取带邀请参数的小程序码
       const qr = await call('share', 'qrcode', { page: 'pages/index/index' }, { silent: true });
       const urlRes = await wx.cloud.getTempFileURL({ fileList: [qr.fileID] });
-      const qrUrl = urlRes.fileList[0].tempFileURL;
+      const qrUrl = urlRes.fileList && urlRes.fileList[0] && urlRes.fileList[0].tempFileURL;
+      if (!qrUrl) throw new Error('小程序码地址获取失败');
 
       // 2. 拿 canvas 节点（Canvas 2D 必须走 SelectorQuery，旧的 canvasId 方式已废弃）
       const query = wx.createSelectorQuery();

@@ -595,6 +595,13 @@ const cloudExport = {
   openapi: {
     wxacode: {
       async getUnlimited(opts) {
+        // 支持数组形式的一次性结果队列：依次消费，Error 抛出、对象返回，
+        // 用于模拟「首次 41030、重试成功」这类错误回退场景
+        if (Array.isArray(state.openapiResult) && state.openapiResult.length) {
+          const r = state.openapiResult.shift();
+          if (r instanceof Error) throw r;
+          return r;
+        }
         if (state.openapiResult instanceof Error) throw state.openapiResult;
         return state.openapiResult || { buffer: Buffer.from('fake-qrcode') };
       }

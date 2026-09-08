@@ -38,6 +38,14 @@
   color: var(--text-inverse);
 }
 
+/* 标签防御：subtype 等字段若被脏数据塞入长文本，截断省略而不是撑爆头部布局 */
+.qc-tags .tag {
+  max-width: 240rpx;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .qc-stem {
   font-size: 30rpx;
   line-height: 1.7;
