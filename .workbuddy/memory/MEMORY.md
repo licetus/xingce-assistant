@@ -19,6 +19,8 @@ V1 范围：专项刷题+解析、错题本+收藏、每日打卡+排行榜。�
 8. 禁 .catch(()=>null) 吞掉云函数缺失（测试守）
 9. 头像昵称用 chooseAvatar + input type=nickname
 10. 提交前必须 npm test（当前 179 用例，mock-sdk.js 忠实还原平台约束，勿"修掉"）
+11. **WXML 绑定禁方法调用**（indexOf/join/slice 等求值为空、静默失败，测试测不到）：
+    状态标记/拼接一律在 JS 侧算好进 data，WXML 只做属性访问。09-08 选项无高亮 bug 即此因
 
 ## 云环境
 EnvId `pro-d3g3e4uab0265b1c6`。11 函数 / 11 集合 / 5 触发器（dailyTask 00:05、rebuildRank 每小时:10、archive 03:30、healthCheck 09:10、notify 09:00）。
@@ -43,7 +45,7 @@ test（Node 18/20/22）+ cloudbase-healthcheck（develop push，2 Secrets）。�
 - **subtype 只存短考点标签，材料必须并入 stem**（材料+空行+题干）——09-08 修复过导入污染：
   93 题已合并；55 题资料分析材料正文源站缺失已下架（status=0 + tags「缺材料待补」，
   清单 database/raw/offline-missing-material-2026-09-08.json），纸质真题集补回后恢复 status=1
-- 解析需自购纸质真题集自主编写；Excel 填解析待用户完成
+- 纸质真题集仅用于人工复核 AI 解析（尤其缺图题），无需再抄写
 - MCP 不支持管道更新（$concat），逐题变换走一次性云函数（跑完即删）
 
 ## 功能就绪状态（V1 全部完成，2026-09-08）
