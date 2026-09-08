@@ -25,10 +25,12 @@
   />
 
   <view class="qc-options">
+    <!-- 高亮标记由组件 JS 预计算（viewOptions.isChosen/isRight/isWrong）：
+         WXML Mustache 不支持 indexOf 等方法调用，不能在这里现算 -->
     <view
-      wx:for="{{q.options}}"
+      wx:for="{{viewOptions}}"
       wx:key="key"
-      class="qc-option {{chosen.indexOf(item.key) >= 0 ? 'is-chosen' : ''}} {{result && result.answer.indexOf(item.key) >= 0 ? 'is-right' : ''}} {{result && chosen.indexOf(item.key) >= 0 && result.answer.indexOf(item.key) < 0 ? 'is-wrong' : ''}}"
+      class="qc-option {{item.isChosen ? 'is-chosen' : ''}} {{item.isRight ? 'is-right' : ''}} {{item.isWrong ? 'is-wrong' : ''}}"
       data-key="{{item.key}}"
       bindtap="onTapOption"
     >
@@ -44,7 +46,7 @@
   <view wx:if="{{result}}" class="qc-analysis">
     <view class="qc-verdict {{result.correct ? 'ok' : 'no'}}">
       {{result.correct ? '回答正确' : '回答错误'}}
-      <text class="qc-answer">正确答案 {{result.answer.join('')}}</text>
+      <text class="qc-answer">正确答案 {{answerText}}</text>
     </view>
 
     <view class="qc-ana-toggle" bindtap="toggleAnalysis">
