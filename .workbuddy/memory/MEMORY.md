@@ -38,6 +38,8 @@ test（Node 18/20/22）+ cloudbase-healthcheck（develop push，2 Secrets）。�
 ## 题库
 - 682 题已入库（analysis=「待补」，source 全部 'real'），来源 gwy.gkzhenti.cn（无解析）
 - source 语义：'real' 真题 | 'ai' AI生成(V1.1，必须标识，审核红线) | 'self'；卡片挂来源标签
+- 2026-09-08 起 627 题解析已全部回填为 AI 辅助原创解析，记 analysisSource='ai'
+  （与 source 独立：题目来源看 source，解析来源看 analysisSource，见 schema.md）
 - **subtype 只存短考点标签，材料必须并入 stem**（材料+空行+题干）——09-08 修复过导入污染：
   93 题已合并；55 题资料分析材料正文源站缺失已下架（status=0 + tags「缺材料待补」，
   清单 database/raw/offline-missing-material-2026-09-08.json），纸质真题集补回后恢复 status=1
@@ -58,7 +60,8 @@ test（Node 18/20/22）+ cloudbase-healthcheck（develop push，2 Secrets）。�
 ## 提审前待办（用户手动为主）
 1. 真机预览：海报颜色/小程序码/隐私弹窗/订阅提醒字段 thing1/thing2（不匹配报 47003 改 config 即可）；
    **海报已修 41030（未发布版 getUnlimited 空 page 回退，share 已重部署），需真机复验**
-2. Excel 填 682 题解析；55 题缺材料资料分析（已下架）补材料后恢复 status=1
+2. ~~627 题原创解析~~ ✅ 2026-09-08 已回填线上（develop 544e4fc，analysisSource='ai'）；
+   图形/材料依赖题解析带缺图提示，补材料图后可人工复核；55 题缺材料资料分析（已下架）补材料后恢复 status=1
 3. ICP 备案 12381 短信核验；类目「工具>效率」；控制台 alias datizhushou→datizhushou-trial
 4. 提审时：云控制台 audit_mode=true + debug_mode=false（清单 11a），见 docs/上线提审清单.md
 5. UV≥500 后开通流量主（2026 门槛已下调），广告位 ID 填 config，见 docs/广告接入指南.md
