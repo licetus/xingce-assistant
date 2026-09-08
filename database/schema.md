@@ -64,6 +64,13 @@
                                      // 93 题已并入 stem；55 题材料正文缺失已下架 status=0 +
                                      // tags「缺材料待补」，补回材料后恢复 status=1（清单见
                                      // database/raw/offline-missing-material-2026-09-08.json）
+                                     //
+                                     // 2026-09-08 追加：62 题题干/选项依赖图片但题库未收录图片，
+                                     // 同样下架 status=0 + tags「缺图待补」（文本特征 + 解析标注
+                                     // 双源合并，人工复核排除误伤），补图后恢复 status=1。
+                                     // 清单 database/raw/offline-missing-image-2026-09-08.json。
+                                     // 模块分布：数量 14 / 判断推理 28（图形推理全下架）/
+                                     // 资料分析 19（图表题）/ 常识 1；线上可刷题 627 → 565
   type:     'single',                // single | multi | material
   stem:     '题干文本',
   options:  [{ key: 'A', text: '' }],
