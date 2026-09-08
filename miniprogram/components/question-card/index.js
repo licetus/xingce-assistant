@@ -33,8 +33,14 @@ Component({
   },
 
   observers: {
-    // 新题进入：清空上一题的作答痕迹（错题重做复用组件实例时防御）
     q: function (q) {
+      // 防御：页面 setData(list[i].faved / list[i].result) 会把整个 item 重传，
+      // 本 observer 对同题也会触发。只有真正换题（qid 变化）才清空作答痕迹，
+      // 否则点收藏会把已展开的解析折叠、已选答案清空
+      const qid = q && q.qid;
+      if (qid && qid === this._lastQid) return;
+      this._lastQid = qid;
+
       this.setData({
         chosen: [],
         showAnalysis: false,
