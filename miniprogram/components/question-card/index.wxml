@@ -1,12 +1,20 @@
 <view class="qc">
   <view class="qc-head">
-    <text class="qc-index">{{index + 1}}<text class="qc-total">/{{total}}</text></text>
-    <view class="qc-tags">
-      <!-- 标签文案由组件 JS 预计算（sourceLabel）：真题显示具体出处（如「2024国考·地市级」） -->
-      <text class="tag {{q.source === 'ai' ? 'tag-ai' : ''}}">{{sourceLabel}}</text>
-      <text class="tag" wx:if="{{q.subtype}}">{{q.subtype}}</text>
-      <text class="qc-diff">难度 {{q.difficulty}}</text>
+    <view class="qc-head-left">
+      <text class="qc-index">{{index + 1}}<text class="qc-total">/{{total}}</text></text>
+      <view class="qc-tags">
+        <!-- 标签文案由组件 JS 预计算（sourceLabel）：真题显示具体出处（如「2024国考·地市级」） -->
+        <text class="tag {{q.source === 'ai' ? 'tag-ai' : ''}}">{{sourceLabel}}</text>
+        <text class="tag" wx:if="{{q.subtype}}">{{q.subtype}}</text>
+        <text class="qc-diff">难度 {{q.difficulty}}</text>
+      </view>
     </view>
+    <!-- 题头收藏按钮：做题过程中随时可收藏/取消，状态由页面传入（faved） -->
+    <view
+      class="qc-fav-btn {{faved ? 'is-faved' : ''}}"
+      hover-class="qc-fav-btn-hover"
+      bindtap="onToggleFav"
+    >{{faved ? '★ 已收藏' : '☆ 收藏'}}</view>
   </view>
 
   <view class="qc-stem">
@@ -58,7 +66,7 @@
     </view>
 
     <view class="qc-ana-foot">
-      <text bindtap="onToggleFav" class="qc-fav">收藏本题</text>
+      <text bindtap="onToggleFav" class="qc-fav {{faved ? 'is-faved' : ''}}">{{faved ? '★ 已收藏' : '☆ 收藏本题'}}</text>
     </view>
   </view>
 </view>

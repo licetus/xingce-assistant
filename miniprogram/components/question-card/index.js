@@ -8,7 +8,10 @@ Component({
     index: { type: Number, value: 0 },
     total: { type: Number, value: 0 },
     locked: { type: Boolean, value: false },
-    result: { type: Object, value: null }
+    result: { type: Object, value: null },
+    // 当前题是否已收藏：由页面（practice）维护并传入，组件不自行查询
+    // （页面进入时批量拉收藏集合，toggle 成功后路径 setData 单点更新）
+    faved: { type: Boolean, value: false }
   },
 
   /**
@@ -156,7 +159,10 @@ Component({
     },
 
     onToggleFav() {
-      this.triggerEvent('fav', { qid: this.properties.q.qid });
+      this.triggerEvent('fav', {
+        qid: this.properties.q.qid,
+        index: this.properties.index
+      });
     }
   }
 });

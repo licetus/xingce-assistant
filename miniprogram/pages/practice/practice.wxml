@@ -22,6 +22,7 @@
             total="{{total}}"
             locked="{{!!item.result}}"
             result="{{item.result}}"
+            faved="{{item.faved}}"
             bind:select="onSelect"
             bind:fav="onFav"
           />

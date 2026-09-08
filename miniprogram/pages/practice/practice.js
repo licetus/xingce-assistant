@@ -2,6 +2,7 @@ const { draw, detail } = require('../../services/question');
 const { submitSafe, submit } = require('../../services/answer');
 const { submit: submitCheckin } = require('../../services/checkin');
 const { redraw: redrawWrong } = require('../../services/wrongbook');
+const { toggle: favToggle, list: favList } = require('../../services/favorite');
 const { requestCheckinSubscribe } = require('../../services/user');
 const track = require('../../utils/track');
 const store = require('../../utils/store');
@@ -83,8 +84,28 @@ Page({
       });
       this._qStart = Date.now();
       this._taskId = res.taskId || null;
+
+      // 异步标记本组题目的已收藏状态（不阻塞渲染；list 接口 size 上限 50，
+      // V1 收藏量级下足够覆盖当前 10 题）
+      this._markFavs(res.list);
     } catch (err) {
       this.setData({ loading: false });
+    }
+  },
+
+  async _markFavs(list) {
+    try {
+      const r = await favList(0, 50);
+      const favSet = {};
+      ((r && r.list) || []).forEach((f) => (favSet[f.qid] = true));
+
+      const patch = {};
+      list.forEach((q, i) => {
+        if (favSet[q.qid]) patch[`list[${i}].faved`] = true;
+      });
+      if (Object.keys(patch).length) this.setData(patch);
+    } catch (e) {
+      /* 标记失败不影响刷题主流程 */
     }
   },
 
@@ -133,15 +154,17 @@ Page({
   },
 
   onFav(e) {
-    const { qid } = e.detail;
-    require('../../services/favorite')
-      .toggle(qid)
-      .then((res) => {
-        wx.showToast({
-          title: res.favorited ? '已收藏' : '已取消收藏',
-          icon: 'none'
-        });
+    const { qid, index } = e.detail;
+    favToggle(qid).then((res) => {
+      // 单点更新该题收藏状态：题头按钮与解析区按钮共用 faved，自动同步
+      if (index >= 0 && index < this.data.total) {
+        this.setData({ [`list[${index}].faved`]: !!res.favorited });
+      }
+      wx.showToast({
+        title: res.favorited ? '已收藏' : '已取消收藏',
+        icon: 'none'
       });
+    });
   },
 
   onNext() {
