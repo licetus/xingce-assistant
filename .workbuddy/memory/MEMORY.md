@@ -40,6 +40,10 @@ test（Node 18/20/22）+ cloudbase-healthcheck（develop push，2 Secrets）。�
 ## 题库
 - 682 题已入库（analysis=「待补」，source 全部 'real'），来源 gwy.gkzhenti.cn（无解析）
 - source 语义：'real' 真题 | 'ai' AI生成(V1.1，必须标识，审核红线) | 'self'；卡片挂来源标签
+- **09-08 重大勘误**：gkzhenti paperId 映射 9 套错 8 套（fetched-2025-* 实为 2026 卷…），
+  对照表 database/raw/PAPER-MAPPING.md，fetch 脚本已更正
+- questions.exams 数组已全量回填 682/682（真题出处，一题多卷多项）；
+  tags 用「国考YYYY」年份标签，卷别细节以 exams 为准；卡片真题标签显示具体出处
 - 2026-09-08 起 627 题解析已全部回填为 AI 辅助原创解析，记 analysisSource='ai'
   （与 source 独立：题目来源看 source，解析来源看 analysisSource，见 schema.md）
 - **subtype 只存短考点标签，材料必须并入 stem**（材料+空行+题干）——09-08 修复过导入污染：
