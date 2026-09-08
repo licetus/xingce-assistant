@@ -68,7 +68,7 @@
     </view>
 
     <view class="start-wrap">
-      <button class="btn" data-name="{{activeModule}}" bindtap="onTapModuleCard">整模块练习</button>
+      <view class="btn" data-name="{{activeModule}}" bindtap="onTapModuleCard">整模块练习</view>
     </view>
   </block>
 </view>
