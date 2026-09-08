@@ -162,7 +162,8 @@ function all(tasks) {
  * 统一在展示前换成 https 临时链接。
  *
  * - 临时链接约 2 小时有效，Map 内存缓存：小程序冷启动后重复换链无额外请求
- * - 转换失败回退原 fileID（真机上 fileID 本身多数场景可用，回退不至于白屏）
+ * - 转换失败返回空串（页面用默认头像兜底）：回退原 fileID 只会让渲染层继续报
+ *   「Failed to load image .../cloud://...」，等于没修，所以绝不回退 fileID
  */
 const tempUrlCache = new Map();
 
@@ -180,10 +181,15 @@ function resolveFileUrls(fileList) {
 
   if (!miss.length) return Promise.resolve(result);
 
+  const fallbackAll = (reason) => {
+    console.warn('[cloud] getTempFileURL 失败，头像等云图走默认占位：', reason);
+    miss.forEach((id) => result.set(id, ''));
+    return resolve(result);
+  };
+
   return new Promise((resolve) => {
     if (!wx.cloud || !wx.cloud.getTempFileURL) {
-      miss.forEach((id) => result.set(id, id));
-      return resolve(result);
+      return fallbackAll('基础库不支持 wx.cloud.getTempFileURL');
     }
 
     wx.cloud.getTempFileURL({
@@ -195,25 +201,22 @@ function resolveFileUrls(fileList) {
             result.set(f.fileID, f.tempFileURL);
           }
         });
-        // 没换到链接的（权限/不存在等）回退原 fileID
+        // 没换到链接的（权限/不存在等）返回空串，页面用默认图兜底
         miss.forEach((id) => {
-          if (!result.has(id)) result.set(id, id);
+          if (!result.has(id)) result.set(id, '');
         });
         resolve(result);
       },
-      fail: () => {
-        miss.forEach((id) => result.set(id, id));
-        resolve(result);
-      }
+      fail: (err) => fallbackAll(err && err.errMsg)
     });
   });
 }
 
-/** 单个 fileID 转换便捷方法；非 cloud:// 开头原样返回 */
+/** 单个 fileID 转换便捷方法；非 cloud:// 开头原样返回，失败返回空串 */
 async function resolveFileUrl(fileID) {
   if (typeof fileID !== 'string' || fileID.indexOf('cloud://') !== 0) return fileID;
   const m = await resolveFileUrls([fileID]);
-  return m.get(fileID) || fileID;
+  return m.get(fileID) || '';
 }
 
 module.exports = { call, all, resolveFileUrls, resolveFileUrl, BizError, NetError };

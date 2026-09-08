@@ -7,7 +7,7 @@ const track = require('../../utils/track');
 const fmt = require('../../utils/format');
 const ad = require('../../utils/ad');
 
-const HOME_CACHE_KEY = 'home-v2'; // v2: 新增 icon/avatarUrl 字段，弃用旧缓存
+const HOME_CACHE_KEY = 'home-v3'; // v3: avatarUrl 存换链后的 https 临时链接，弃用含 cloud:// fileID 的旧缓存
 
 /** 按当前时段返回问候语（东八区） */
 function buildGreeting() {

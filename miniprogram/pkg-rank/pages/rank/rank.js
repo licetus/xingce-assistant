@@ -30,8 +30,9 @@ Page({
     const urlMap = await cloudUtil.resolveFileUrls(fileIds);
     const toUrl = (u) => {
       if (!u) return u;
-      const url = u.avatarUrl ? urlMap.get(u.avatarUrl) : null;
-      return Object.assign({}, u, { avatarUrl: url || u.avatarUrl || '' });
+      // 换链结果可能为空串（失败兜底），此时直接用空串让 WXML 走默认头像，
+      // 严禁回退 u.avatarUrl（cloud:// fileID 直填 src 渲染层必报错）
+      return Object.assign({}, u, { avatarUrl: u.avatarUrl ? urlMap.get(u.avatarUrl) || '' : '' });
     };
 
     this.setData({
