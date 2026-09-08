@@ -22,15 +22,17 @@
     <text>{{q.stem}}</text>
   </view>
 
-  <image
-    wx:for="{{q.images}}"
-    wx:key="*this"
-    class="qc-img"
-    src="{{item}}"
-    mode="widthFix"
-    lazy-load="{{true}}"
-    wx:if="{{q.images.length}}"
-  />
+  <!-- 题干配图（材料图+题干图，云存储链接已由组件 JS 批量换链） -->
+  <view wx:if="{{stemImgUrls.length}}" class="qc-stem-imgs">
+    <image
+      wx:for="{{stemImgUrls}}"
+      wx:key="*this"
+      class="qc-img"
+      src="{{item}}"
+      mode="widthFix"
+      lazy-load="{{true}}"
+    />
+  </view>
 
   <view class="qc-options">
     <!-- 高亮标记由组件 JS 预计算（viewOptions.isChosen/isRight/isWrong）：
@@ -43,7 +45,17 @@
       bindtap="onTapOption"
     >
       <text class="qc-key">{{item.key}}</text>
-      <text class="qc-text">{{item.text}}</text>
+      <view class="qc-opt-body">
+        <text wx:if="{{item.text}}" class="qc-text">{{item.text}}</text>
+        <!-- 选项即图（坐标图/公式选项）：链接由组件 JS 按选项 key 换好 -->
+        <image
+          wx:if="{{optionImgUrls[item.key]}}"
+          class="qc-opt-img"
+          src="{{optionImgUrls[item.key]}}"
+          mode="widthFix"
+          lazy-load="{{true}}"
+        />
+      </view>
     </view>
   </view>
 

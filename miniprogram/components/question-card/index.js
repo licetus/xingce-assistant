@@ -1,3 +1,5 @@
+const { resolveFileUrls } = require('../../utils/cloud');
+
 Component({
   options: {
     addGlobalClass: true
@@ -29,7 +31,12 @@ Component({
     showAnalysis: false,
     viewOptions: [],
     answerText: '',
-    sourceLabel: ''
+    sourceLabel: '',
+    // cloud:// fileID 不能直填 <image src>（渲染层转换不稳定，见约束 #12），
+    // 这里存 resolveFileUrls 换出的 https 临时链接；材料图+题干图按序在 q.images
+    stemImgUrls: [],
+    // key -> 临时链接（选项即图的题，如坐标图/公式选项）
+    optionImgUrls: {}
   },
 
   observers: {
@@ -48,6 +55,7 @@ Component({
         sourceLabel: this._computeSourceLabel(q)
       });
       this._refreshOptions();
+      this._loadImages();
     },
     result: function (result) {
       if (result) {
@@ -99,6 +107,41 @@ Component({
         })
         .sort((a, b) => ORDER.indexOf(a) - ORDER.indexOf(b));
       return years[0] + '国考·' + papers.join('/');
+    },
+
+    /**
+     * 换链题干图 + 选项图（一次批量 getTempFileURL，utils/cloud 内存缓存命中零开销）。
+     * 仅换题时触发；换链完成前 WXML 的 wx:if 不渲染图片，不产生空 src 请求
+     */
+    _loadImages() {
+      const q = this.properties.q;
+      if (!q) return;
+
+      const stemIds = Array.isArray(q.images) ? q.images : [];
+      const optImgByKey = {}; // key -> fileID
+      (q.options || []).forEach((o) => {
+        if (o && typeof o.img === 'string' && o.img.indexOf('cloud://') === 0) optImgByKey[o.key] = o.img;
+      });
+      const optionIds = Object.keys(optImgByKey).map((k) => optImgByKey[k]);
+
+      if (!stemIds.length && !optionIds.length) {
+        this.setData({ stemImgUrls: [], optionImgUrls: {} });
+        return;
+      }
+
+      resolveFileUrls(stemIds.concat(optionIds)).then((map) => {
+        // 同题防御：换链期间用户可能已切题，以当前 qid 为准
+        if (this.properties.q && this.properties.q.qid !== q.qid) return;
+        const optionImgUrls = {};
+        Object.keys(optImgByKey).forEach((k) => {
+          const url = map.get(optImgByKey[k]);
+          if (url) optionImgUrls[k] = url;
+        });
+        this.setData({
+          stemImgUrls: stemIds.map((id) => map.get(id) || '').filter(Boolean),
+          optionImgUrls
+        });
+      });
     },
 
     /** 把 chosen / result 折算进选项数组，供 WXML 直接渲染高亮类名 */

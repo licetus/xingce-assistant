@@ -99,6 +99,23 @@
   margin-bottom: 24rpx;
 }
 
+.qc-stem-imgs {
+  margin-bottom: 8rpx;
+}
+
+/* 选项内容列：文字 + 选项图（选项即图的题） */
+.qc-opt-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.qc-opt-img {
+  width: 100%;
+  max-width: 420rpx;
+  border-radius: 8rpx;
+  margin-top: 8rpx;
+}
+
 .qc-options {
   margin-bottom: 24rpx;
 }
