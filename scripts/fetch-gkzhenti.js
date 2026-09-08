@@ -32,17 +32,24 @@ const fs = require('fs');
 const path = require('path');
 const https = require('https');
 
-// 题源映射（已实测验证 2026-09-07）
+// 题源映射。
+// ⚠️ 2026-09-08 重大勘误：初版映射把 paperId 与年份/卷别对应错了（仅 2024 副省级正确），
+// 以站点试卷页 h3/<title> 为准重新核实（paperId 创建时间戳 + 数量关系15题=副省级 双重佐证）：
+//   1723610466211 = 2024副省级(135)  1723610466312 = 2024地市级(130)  1723610466110 = 2024行政执法(130)
+//   1735356969686 = 2025副省级(135)  1735356969586 = 2025地市级(130)  1735356969485 = 2025行政执法(130)
+//   1767342831860 = 2026副省级(135)  1767342831759 = 2026地市级(130)  1767342831658 = 2026行政执法(130)
+// 注意：早期抓取的 fetched-2025-*.json / fetched-2026-*.json 文件名与内容真实归属不符
+//（文件名沿用当时错误标签），正确对照表见 database/raw/PAPER-MAPPING.md
 const SOURCES = [
   { year: 2024, type: 'fusheng',   label: '副省级',   paperId: '1723610466211', expected: 135 },
-  { year: 2024, type: 'dimenji',   label: '地市级',   paperId: '1723610466110', expected: 130 },
-  { year: 2024, type: 'xingzheng', label: '行政执法', paperId: '1723610466312', expected: 130 },
-  { year: 2025, type: 'fusheng',   label: '副省级',   paperId: '1767342831759', expected: 130 },
-  { year: 2025, type: 'dimenji',   label: '地市级',   paperId: '1767342831658', expected: 130 },
-  { year: 2025, type: 'xingzheng', label: '行政执法', paperId: '1767342831860', expected: 135 },
-  { year: 2026, type: 'fusheng',   label: '副省级',   paperId: '1735356969485', expected: 130 },
-  { year: 2026, type: 'dimenji',   label: '地市级',   paperId: '1735356969586', expected: 130 },
-  { year: 2026, type: 'xingzheng', label: '行政执法', paperId: '1735356969686', expected: 135 }
+  { year: 2024, type: 'dimenji',   label: '地市级',   paperId: '1723610466312', expected: 130 },
+  { year: 2024, type: 'xingzheng', label: '行政执法', paperId: '1723610466110', expected: 130 },
+  { year: 2025, type: 'fusheng',   label: '副省级',   paperId: '1735356969686', expected: 135 },
+  { year: 2025, type: 'dimenji',   label: '地市级',   paperId: '1735356969586', expected: 130 },
+  { year: 2025, type: 'xingzheng', label: '行政执法', paperId: '1735356969485', expected: 130 },
+  { year: 2026, type: 'fusheng',   label: '副省级',   paperId: '1767342831860', expected: 135 },
+  { year: 2026, type: 'dimenji',   label: '地市级',   paperId: '1767342831759', expected: 130 },
+  { year: 2026, type: 'xingzheng', label: '行政执法', paperId: '1767342831658', expected: 130 }
 ];
 
 const MODULES = ['常识判断', '言语理解', '数量关系', '判断推理', '资料分析'];

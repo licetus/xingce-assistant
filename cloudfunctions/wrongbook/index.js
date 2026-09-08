@@ -102,7 +102,8 @@ async function handleRedraw(payload) {
       difficulty: q.difficulty,
       tags: q.tags,
       materialId: q.materialId,
-      images: q.images
+      images: q.images,
+      exams: q.exams || []
     }))
   });
 }

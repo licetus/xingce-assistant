@@ -25,13 +25,19 @@ Component({
     chosen: [],
     showAnalysis: false,
     viewOptions: [],
-    answerText: ''
+    answerText: '',
+    sourceLabel: ''
   },
 
   observers: {
     // 新题进入：清空上一题的作答痕迹（错题重做复用组件实例时防御）
-    q: function () {
-      this.setData({ chosen: [], showAnalysis: false, answerText: '' });
+    q: function (q) {
+      this.setData({
+        chosen: [],
+        showAnalysis: false,
+        answerText: '',
+        sourceLabel: this._computeSourceLabel(q)
+      });
       this._refreshOptions();
     },
     result: function (result) {
@@ -47,6 +53,45 @@ Component({
   },
 
   methods: {
+    /**
+     * 来源标签文案（在 JS 侧算好再进 data，WXML 禁方法调用）：
+     * - AI 题：'AI 生成'（审核红线，必须标识）
+     * - 真题有出处：单卷 '2024国考·行政执法'；同年多卷 '2024国考·执法/地市'；跨年 '2024/2025国考'
+     * - 无出处数据（旧缓存/兜底）：'真题'
+     */
+    _computeSourceLabel(q) {
+      if (!q) return '';
+      if (q.source === 'ai') return 'AI 生成';
+
+      const exams = Array.isArray(q.exams) ? q.exams : [];
+      if (!exams.length) return '真题';
+
+      const years = [];
+      exams.forEach((e) => {
+        const y = String(e).slice(0, 4);
+        if (years.indexOf(y) < 0) years.push(y);
+      });
+
+      if (exams.length === 1) {
+        return exams[0].replace(/^(\d{4})/, '$1国考·');
+      }
+      if (years.length > 1) {
+        return years.join('/') + '国考';
+      }
+      // 同年多卷：卷别短式拼接，按 副省 → 地市 → 执法 固定顺序
+      const ORDER = ['副省', '地市', '执法'];
+      const papers = exams
+        .map((e) => {
+          const p = String(e).slice(4);
+          if (p === '副省级') return '副省';
+          if (p === '地市级') return '地市';
+          if (p === '行政执法') return '执法';
+          return p;
+        })
+        .sort((a, b) => ORDER.indexOf(a) - ORDER.indexOf(b));
+      return years[0] + '国考·' + papers.join('/');
+    },
+
     /** 把 chosen / result 折算进选项数组，供 WXML 直接渲染高亮类名 */
     _refreshOptions() {
       const chosen = this.data.chosen;

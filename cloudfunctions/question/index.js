@@ -44,7 +44,10 @@ function sanitize(q) {
     images: q.images,
     // 来源标识：'real' 历年真题 / 'ai' AI生成（V1.1）/ 'self' 自研改编。
     // 用户可见的来源标签依据此字段展示，必须如实下发
-    source: q.source || 'real'
+    source: q.source || 'real',
+    // 真题出处数组（如 ['2024行政执法','2024地市级']），卡片真题标签据此展示
+    // 「2024国考·执法/地市」；一题多卷是国考常态（各卷共享题目）。2026-09-08 新增
+    exams: q.exams || []
   };
 }
 
@@ -136,7 +139,8 @@ async function handleDraw(payload) {
     .collection('questions')
     .where(where)
     .field({ qid: true, module: true, subtype: true, type: true, stem: true, options: true,
-             difficulty: true, tags: true, materialId: true, images: true, source: true })
+             difficulty: true, tags: true, materialId: true, images: true, source: true,
+             exams: true })
     .limit(1000)
     .get();
 
