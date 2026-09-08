@@ -76,7 +76,7 @@ async function handleList(payload) {
   if (!res.data.length) return ok({ list: [], hasMore: false });
 
   const qids = res.data.map((f) => f.qid);
-  const qRes = await db.collection('questions').where({ qid: _.in(qids) }).limit(50).get();
+  const qRes = await db.collection('questions').where({ qid: _.in(qids), status: 1 }).limit(50).get();
   const qMap = {};
   qRes.data.forEach((q) => (qMap[q.qid] = q));
 
