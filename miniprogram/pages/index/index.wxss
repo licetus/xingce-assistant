@@ -170,3 +170,98 @@
 .ad-slot {
   margin-top: var(--space-md);
 }
+
+/* ============ 骨架屏（冷启动占位） ============ */
+/* 透明度脉冲：比 background-position 扫光在 webview/skyline 下兼容性都稳 */
+.sk {
+  background: var(--line);
+  border-radius: var(--radius-sm);
+  animation: sk-pulse 1.4s ease-in-out infinite;
+}
+
+@keyframes sk-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.55;
+  }
+}
+
+/* 深色卡内的骨架块 */
+.sk-dark {
+  background: rgba(255, 255, 255, 0.16);
+  border-radius: 6rpx;
+}
+
+/* 尺寸一一对应真实元素，切换时位置不跳 */
+.sk-greeting {
+  width: 300rpx;
+  height: 44rpx;
+}
+
+.sk-sub {
+  width: 200rpx;
+  height: 28rpx;
+  margin-top: 14rpx;
+}
+
+.sk-avatar {
+  width: 88rpx;
+  height: 88rpx;
+  border-radius: 50%;
+}
+
+.sk-goal-title {
+  width: 250rpx;
+  height: 36rpx;
+}
+
+.sk-goal-sub {
+  width: 190rpx;
+  height: 26rpx;
+  margin-top: 14rpx;
+}
+
+.sk-goal-btn {
+  width: 148rpx;
+  height: 72rpx;
+  border-radius: var(--radius-capsule);
+}
+
+.sk-section {
+  width: 132rpx;
+  height: 32rpx;
+}
+
+.sk-icon {
+  width: 72rpx;
+  height: 72rpx;
+  margin: 0 auto;
+  border-radius: 20rpx;
+}
+
+.sk-grid-name {
+  width: 96rpx;
+  height: 26rpx;
+  margin: 14rpx auto 0;
+}
+
+.sk-grid-meta {
+  width: 72rpx;
+  height: 20rpx;
+  margin: 8rpx auto 0;
+}
+
+.sk-num {
+  width: 76rpx;
+  height: 44rpx;
+  margin: 0 auto 10rpx;
+}
+
+.sk-quick-label {
+  width: 128rpx;
+  height: 24rpx;
+  margin: 0 auto;
+}

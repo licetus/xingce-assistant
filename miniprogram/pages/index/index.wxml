@@ -1,4 +1,49 @@
-<view class="page">
+<!-- 骨架屏：冷启动无缓存时的占位视图。容器结构与真实内容一一对应，
+     数据到达后 wx:if 切换，各区块位置/尺寸基本一致，不会发生元素跳动 -->
+<view class="page" wx:if="{{loading}}">
+
+  <view class="header">
+    <view class="header-text">
+      <view class="sk sk-greeting"></view>
+      <view class="sk sk-sub"></view>
+    </view>
+    <view class="sk sk-avatar"></view>
+  </view>
+
+  <view class="goal-card">
+    <view class="goal-main">
+      <view class="sk sk-goal-title sk-dark"></view>
+      <view class="sk sk-goal-sub sk-dark"></view>
+    </view>
+    <view class="sk sk-goal-btn sk-dark"></view>
+  </view>
+
+  <view class="section-title">
+    <view class="sk sk-section"></view>
+  </view>
+
+  <view class="card grid-card">
+    <view class="grid-item" wx:for="{{[1, 2, 3, 4, 5, 6, 7, 8, 9]}}" wx:key="*this">
+      <view class="sk sk-icon"></view>
+      <view class="sk sk-grid-name"></view>
+      <view class="sk sk-grid-meta"></view>
+    </view>
+  </view>
+
+  <view class="quick-row">
+    <view class="card quick-item">
+      <view class="sk sk-num"></view>
+      <view class="sk sk-quick-label"></view>
+    </view>
+    <view class="card quick-item">
+      <view class="sk sk-num"></view>
+      <view class="sk sk-quick-label"></view>
+    </view>
+  </view>
+
+</view>
+
+<view class="page" wx:else>
 
   <!-- 顶部问候 + 头像 -->
   <view class="header">
