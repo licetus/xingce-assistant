@@ -18,7 +18,7 @@ V1 范围：专项刷题+解析、错题本+收藏、每日打卡+排行榜。�
 7. 数据库导入 JSON 必须 JSON Lines 格式
 8. 禁 .catch(()=>null) 吞掉云函数缺失（测试守）
 9. 头像昵称用 chooseAvatar + input type=nickname
-10. 提交前必须 npm test（当前 177 用例，mock-sdk.js 忠实还原平台约束，勿"修掉"）
+10. 提交前必须 npm test（当前 179 用例，mock-sdk.js 忠实还原平台约束，勿"修掉"）
 
 ## 云环境
 EnvId `pro-d3g3e4uab0265b1c6`。11 函数 / 11 集合 / 5 触发器（dailyTask 00:05、rebuildRank 每小时:10、archive 03:30、healthCheck 09:10、notify 09:00）。
@@ -38,7 +38,11 @@ test（Node 18/20/22）+ cloudbase-healthcheck（develop push，2 Secrets）。�
 ## 题库
 - 682 题已入库（analysis=「待补」，source 全部 'real'），来源 gwy.gkzhenti.cn（无解析）
 - source 语义：'real' 真题 | 'ai' AI生成(V1.1，必须标识，审核红线) | 'self'；卡片挂来源标签
+- **subtype 只存短考点标签，材料必须并入 stem**（材料+空行+题干）——09-08 修复过导入污染：
+  93 题已合并；55 题资料分析材料正文源站缺失已下架（status=0 + tags「缺材料待补」，
+  清单 database/raw/offline-missing-material-2026-09-08.json），纸质真题集补回后恢复 status=1
 - 解析需自购纸质真题集自主编写；Excel 填解析待用户完成
+- MCP 不支持管道更新（$concat），逐题变换走一次性云函数（跑完即删）
 
 ## 功能就绪状态（V1 全部完成，2026-09-08）
 - 核心：刷题/解析/错题/收藏/打卡/排行榜/海报（全站令牌化，CI 绿）
@@ -52,8 +56,9 @@ test（Node 18/20/22）+ cloudbase-healthcheck（develop push，2 Secrets）。�
 - 埋点 track 完整；audit_mode 端到端验证过（热翻转即时生效）
 
 ## 提审前待办（用户手动为主）
-1. 真机预览：海报颜色/小程序码/隐私弹窗/订阅提醒字段 thing1/thing2（不匹配报 47003 改 config 即可）
-2. Excel 填 682 题解析
+1. 真机预览：海报颜色/小程序码/隐私弹窗/订阅提醒字段 thing1/thing2（不匹配报 47003 改 config 即可）；
+   **海报已修 41030（未发布版 getUnlimited 空 page 回退，share 已重部署），需真机复验**
+2. Excel 填 682 题解析；55 题缺材料资料分析（已下架）补材料后恢复 status=1
 3. ICP 备案 12381 短信核验；类目「工具>效率」；控制台 alias datizhushou→datizhushou-trial
 4. 提审时：云控制台 audit_mode=true + debug_mode=false（清单 11a），见 docs/上线提审清单.md
 5. UV≥500 后开通流量主（2026 门槛已下调），广告位 ID 填 config，见 docs/广告接入指南.md

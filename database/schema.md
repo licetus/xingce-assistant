@@ -69,6 +69,10 @@
   options:  [{ key: 'A', text: '' }],
   answer:   ['B'],                   // 数组，兼容多选
   analysis: '解析文本',
+  analysisSource: 'ai',              // 解析来源：'ai' AI辅助起草的原创解析（自有表述推理成文，2026-09-08
+                                     // 全量 627 题回填，不含任何第三方解析文本，无版权风险）|
+                                     // 'self' 人工自研（预留）。⚠️ 题目来源看 source 字段，
+                                     // 解析来源看本字段，二者独立。
   difficulty: 3,                     // 1-5
   tags:     ['增长率', '基期量'],
   materialId: null,                  // type=material 时指向 qgroups.gid
