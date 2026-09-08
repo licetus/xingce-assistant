@@ -153,4 +153,67 @@ function all(tasks) {
   return Promise.all(tasks.map((t) => call(t.name, t.action, t.payload, t.options).catch(() => null)));
 }
 
-module.exports = { call, all, BizError, NetError };
+/**
+ * cloud:// fileID → https 临时链接（wx.cloud.getTempFileURL）
+ *
+ * 背景：<image src> 直填 cloud:// fileID 在渲染层（尤其开发者工具 webview）转换
+ * 不稳定，失败时 fileID 会被当相对路径拼到页面路径上，报
+ * 「Failed to load image .../__pageframe__/pages/index/cloud://...」。
+ * 统一在展示前换成 https 临时链接。
+ *
+ * - 临时链接约 2 小时有效，Map 内存缓存：小程序冷启动后重复换链无额外请求
+ * - 转换失败回退原 fileID（真机上 fileID 本身多数场景可用，回退不至于白屏）
+ */
+const tempUrlCache = new Map();
+
+function resolveFileUrls(fileList) {
+  const ids = Array.from(
+    new Set((fileList || []).filter((u) => typeof u === 'string' && u.indexOf('cloud://') === 0))
+  );
+
+  const result = new Map();
+  const miss = [];
+  ids.forEach((id) => {
+    if (tempUrlCache.has(id)) result.set(id, tempUrlCache.get(id));
+    else miss.push(id);
+  });
+
+  if (!miss.length) return Promise.resolve(result);
+
+  return new Promise((resolve) => {
+    if (!wx.cloud || !wx.cloud.getTempFileURL) {
+      miss.forEach((id) => result.set(id, id));
+      return resolve(result);
+    }
+
+    wx.cloud.getTempFileURL({
+      fileList: miss,
+      success: (res) => {
+        (res.fileList || []).forEach((f) => {
+          if (f && f.fileID && f.tempFileURL) {
+            tempUrlCache.set(f.fileID, f.tempFileURL);
+            result.set(f.fileID, f.tempFileURL);
+          }
+        });
+        // 没换到链接的（权限/不存在等）回退原 fileID
+        miss.forEach((id) => {
+          if (!result.has(id)) result.set(id, id);
+        });
+        resolve(result);
+      },
+      fail: () => {
+        miss.forEach((id) => result.set(id, id));
+        resolve(result);
+      }
+    });
+  });
+}
+
+/** 单个 fileID 转换便捷方法；非 cloud:// 开头原样返回 */
+async function resolveFileUrl(fileID) {
+  if (typeof fileID !== 'string' || fileID.indexOf('cloud://') !== 0) return fileID;
+  const m = await resolveFileUrls([fileID]);
+  return m.get(fileID) || fileID;
+}
+
+module.exports = { call, all, resolveFileUrls, resolveFileUrl, BizError, NetError };

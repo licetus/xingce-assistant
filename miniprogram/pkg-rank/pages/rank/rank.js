@@ -1,4 +1,5 @@
 const { rank } = require('../../../services/checkin');
+const cloudUtil = require('../../../utils/cloud');
 const track = require('../../../utils/track');
 
 Page({
@@ -17,9 +18,25 @@ Page({
   async _load() {
     this.setData({ loading: true });
     const res = await rank(this.data.type).catch(() => null);
+    const list = (res && res.list) || [];
+    const me = (res && res.me) || null;
+
+    // 榜单头像多为 cloud:// fileID，渲染层直填不稳定，批量换 https 临时链接
+    const fileIds = [];
+    list.forEach((u) => {
+      if (u.avatarUrl) fileIds.push(u.avatarUrl);
+    });
+    if (me && me.avatarUrl) fileIds.push(me.avatarUrl);
+    const urlMap = await cloudUtil.resolveFileUrls(fileIds);
+    const toUrl = (u) => {
+      if (!u) return u;
+      const url = u.avatarUrl ? urlMap.get(u.avatarUrl) : null;
+      return Object.assign({}, u, { avatarUrl: url || u.avatarUrl || '' });
+    };
+
     this.setData({
-      list: (res && res.list) || [],
-      me: (res && res.me) || null,
+      list: list.map(toUrl),
+      me: toUrl(me),
       loading: false
     });
   },

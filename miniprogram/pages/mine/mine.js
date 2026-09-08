@@ -1,6 +1,7 @@
 const { getStats, updateProfile } = require('../../services/user');
 const { requestCheckinSubscribe } = require('../../services/user');
 const { calendar } = require('../../services/checkin');
+const cloudUtil = require('../../utils/cloud');
 const fmt = require('../../utils/format');
 const store = require('../../utils/store');
 const privacy = require('../../utils/privacy');
@@ -56,8 +57,12 @@ Page({
         return { name: m, done: r.done, accuracy: fmt.percent(r.correct, r.done) };
       });
 
+      // 头像可能是 cloud:// fileID，渲染层直填不稳定，先换 https 临时链接
+      const rawAvatar = (stats && stats.profile && stats.profile.avatarUrl) || '';
+      const avatarUrl = await cloudUtil.resolveFileUrl(rawAvatar);
+
       this.setData({
-        avatarUrl: (stats && stats.profile && stats.profile.avatarUrl) || '',
+        avatarUrl,
         nickName: (stats && stats.profile && stats.profile.nickName) || '',
         totalDone: s.totalDone,
         accuracy: fmt.percent(s.totalCorrect, s.totalDone),

@@ -1,6 +1,7 @@
 const { getStats } = require('../../services/user');
 const { calendar } = require('../../services/checkin');
 const cache = require('../../utils/cache');
+const cloudUtil = require('../../utils/cloud');
 const store = require('../../utils/store');
 const track = require('../../utils/track');
 const fmt = require('../../utils/format');
@@ -75,10 +76,15 @@ Page({
         };
       });
 
+      // 头像可能是 cloud:// fileID：渲染层直填不稳定（当相对路径加载失败），
+      // 先换 https 临时链接再渲染（缓存里也存转换后的链接）
+      const rawAvatar = (stats && stats.profile && stats.profile.avatarUrl) || '';
+      const avatarUrl = await cloudUtil.resolveFileUrl(rawAvatar);
+
       const payload = {
         loading: false,
         nickName: (stats && stats.profile && stats.profile.nickName) || '',
-        avatarUrl: (stats && stats.profile && stats.profile.avatarUrl) || '',
+        avatarUrl,
         totalDone: s.totalDone,
         accuracy: fmt.percent(s.totalCorrect, s.totalDone),
         streak: (cal && cal.streak) || 0,
