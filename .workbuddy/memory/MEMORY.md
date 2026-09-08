@@ -21,6 +21,9 @@ V1 范围：专项刷题+解析、错题本+收藏、每日打卡+排行榜。�
 10. 提交前必须 npm test（当前 179 用例，mock-sdk.js 忠实还原平台约束，勿"修掉"）
 11. **WXML 绑定禁方法调用**（indexOf/join/slice 等求值为空、静默失败，测试测不到）：
     状态标记/拼接一律在 JS 侧算好进 data，WXML 只做属性访问。09-08 选项无高亮 bug 即此因
+12. **cloud:// fileID 禁止直填 `<image src>`/canvas drawImage**：先 getTempFileURL 换
+    https 临时链接（utils/cloud.js resolveFileUrls/resolveFileUrl，带缓存+回退）；
+    渲染层对 fileID 内置支持不稳定，失败时 fileID 被当相对路径拼接（09-08 头像报错）
 
 ## 云环境
 EnvId `pro-d3g3e4uab0265b1c6`。11 函数 / 11 集合 / 5 触发器（dailyTask 00:05、rebuildRank 每小时:10、archive 03:30、healthCheck 09:10、notify 09:00）。
